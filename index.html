@@ -1158,34 +1158,45 @@ init()
   </style>
 
   <script>
-  // === FIX BEHAVIOR GUIDE & CAMERA ===
-  document.addEventListener("DOMContentLoaded", () => {
-    const cam = document.getElementById("cameraModal");
-    const guide = document.getElementById("guideOverlay");
+document.addEventListener("DOMContentLoaded", () => {
+  const cam = document.getElementById("cameraModal");
+  const guide = document.getElementById("guideOverlay");
 
-    // Tutup kamera jika masih kebuka
-    if (cam) {
-      cam.style.pointerEvents = "none";
-      if (cam.style.display !== "none") cam.style.display = "none";
-      cam.style.zIndex = "1";
-    }
+  // Pastikan kamera tertutup dan tidak blokir klik
+  if (cam) {
+    cam.style.display = "none";
+    cam.style.pointerEvents = "none";
+    cam.style.zIndex = "1";
+  }
 
-    // Pastikan popup guide bisa diklik
-    if (guide) {
-      guide.style.zIndex = "99999";
-      guide.style.pointerEvents = "auto";
-    }
+  // Pastikan guide di atas dan bisa diklik
+  if (guide) {
+    guide.style.display = "flex";
+    guide.style.zIndex = "99999";
+    guide.style.pointerEvents = "auto";
+  }
 
-    // Jika guide muncul lagi, kamera otomatis tertutup
-    const observer = new MutationObserver(() => {
-      if (guide && getComputedStyle(guide).display !== "none" && cam) {
-        cam.style.display = "none";
-        cam.style.pointerEvents = "none";
-        cam.style.zIndex = "1";
-      }
-    });
-    if (guide) observer.observe(guide, { attributes: true, attributeFilter: ["style"] });
+  // Pastikan tombol di guide bisa diklik
+  document.querySelectorAll("#guideBox button").forEach(btn => {
+    btn.style.pointerEvents = "auto";
+    btn.style.cursor = "pointer";
   });
-  </script>
+});
+
+// Definisi ulang fungsi supaya tidak hilang
+function startGuide() {
+  const guide = document.getElementById("guideOverlay");
+  const cam = document.getElementById("cameraModal");
+  if (cam) cam.style.display = "none";
+  if (guide) guide.style.display = "none";
+  alert("Tutorial dimulai!\n1️⃣ Tambah produk\n2️⃣ Restock\n3️⃣ Scan\n4️⃣ Keranjang\n5️⃣ Cetak struk");
+}
+
+function skipGuide() {
+  const guide = document.getElementById("guideOverlay");
+  if (guide) guide.style.display = "none";
+}
+</script>
+
 </body>
 </html>
