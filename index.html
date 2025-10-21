@@ -844,8 +844,7 @@ function printReceipt(t){
 }
 
 /* ---------- SCAN ---------- */
-<!-- SCAN SECTION -->
-<script>
+/* ---------- SCAN ---------- */
 let html5QrcodeScanner = null;
 let scanTarget = null;
 
@@ -909,7 +908,7 @@ function showGuide() {
 function startGuide() {
   const guide = document.getElementById("guideOverlay");
   if (guide) guide.style.display = "none";
-  alert("Tutorial dimulai...");
+  alert("Tutorial dimulai!\n1️⃣ Tambah produk\n2️⃣ Restock\n3️⃣ Scan\n4️⃣ Keranjang\n5️⃣ Cetak struk");
 }
 
 function skipGuide() {
@@ -921,17 +920,24 @@ function skipGuide() {
 document.addEventListener("DOMContentLoaded", () => {
   const guide = document.getElementById("guideOverlay");
   const cam = document.getElementById("cameraModal");
+
   if (guide) {
+    guide.style.display = "flex";
     guide.style.zIndex = "99999";
     guide.style.pointerEvents = "auto";
   }
   if (cam) {
-    cam.style.zIndex = "9000";
+    cam.style.display = "none";
     cam.style.pointerEvents = "none";
+    cam.style.zIndex = "9000";
   }
-});
-</script>
 
+  // pastikan tombol overlay aktif
+  document.querySelectorAll("#guideBox button").forEach(btn => {
+    btn.style.pointerEvents = "auto";
+    btn.style.cursor = "pointer";
+  });
+});
 
 
 /* ---------- TABS ---------- */
