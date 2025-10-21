@@ -1122,5 +1122,32 @@ function init(){
 
 init()
 </script>
+  
+  <style>
+/* --- Fix overlay tumpang tindih --- */
+#cameraModal {
+  z-index: 9000;
+  pointer-events: none; /* jangan blokir klik apapun kalau tertutup */
+}
+#cameraModal[style*="display: flex"] {
+  pointer-events: auto; /* aktif lagi hanya saat kamera tampil */
+}
+#guideOverlay {
+  z-index: 10000; /* pastikan paling atas */
+  pointer-events: auto;
+}
+</style>
+
+<script>
+// Safety fix: pastikan camera modal tertutup saat guide aktif
+document.addEventListener("DOMContentLoaded", () => {
+  const cam = document.getElementById("cameraModal");
+  const guide = document.getElementById("guideOverlay");
+  if (cam && guide && guide.style.display !== "none") {
+    cam.style.display = "none";
+  }
+});
+</script>
+
 </body>
 </html>
