@@ -844,34 +844,29 @@ function printReceipt(t){
 }
 
 /* ---------- SCAN ---------- */
+<!-- SCAN SECTION -->
 <script>
 let html5QrcodeScanner = null;
 let scanTarget = null;
 
 function openCamera(target) {
   scanTarget = target;
-  document.getElementById('cameraModal').style.display = 'flex';
+  const camModal = document.getElementById('cameraModal');
+  camModal.style.display = 'flex';
+  camModal.style.pointerEvents = 'auto';
+  camModal.style.zIndex = '9000';
 
-  // Inisialisasi kamera
   if (html5QrcodeScanner) return;
   html5QrcodeScanner = new Html5Qrcode("cameraReader");
   const config = { fps: 10, qrbox: 250 };
-  html5QrcodeScanner.start({ facingMode: "environment" }, config, qrCodeMessage => {
-    handleScan(qrCodeMessage);
-    if (document.getElementById("scanMode") && 
-        document.getElementById("scanMode").value === "single" && 
-        (scanTarget === "sell" || document.getElementById("autoSell")?.checked)) {
-      stopCamera();
-    }
+
+  html5QrcodeScanner.start({ facingMode: "environment" }, config, msg => {
+    handleScan(msg);
+    if (document.getElementById("scanMode")?.value === "single") stopCamera();
   }).catch(err => {
     console.error(err);
     alert("Gagal mengakses kamera: " + err);
   });
-}
-
-function closeCamera() {
-  stopCamera();
-  document.getElementById('cameraModal').style.display = 'none';
 }
 
 function stopCamera() {
@@ -881,7 +876,14 @@ function stopCamera() {
       document.getElementById("cameraReader").innerHTML = "";
     });
   }
+  const camModal = document.getElementById('cameraModal');
+  if (camModal) {
+    camModal.style.display = "none";
+    camModal.style.pointerEvents = "none";
+  }
 }
+
+function closeCamera() { stopCamera(); }
 
 function handleScan(msg) {
   if (scanTarget === "sell" || document.getElementById("autoSell")?.checked) {
@@ -892,39 +894,43 @@ function handleScan(msg) {
   }
 }
 
-function scanSku() {
-  openCamera("sku");
+function scanSku() { openCamera("sku"); }
+function startScan(target) { openCamera(target); }
+
+/* ---------- GUIDE OVERLAY ---------- */
+function showGuide() {
+  stopCamera();
+  const cam = document.getElementById("cameraModal");
+  const guide = document.getElementById("guideOverlay");
+  if (cam) { cam.style.display = "none"; cam.style.pointerEvents = "none"; }
+  if (guide) { guide.style.display = "flex"; guide.style.pointerEvents = "auto"; }
 }
 
-function startScan(target) {
-  openCamera(target);
-}
-</script>
-
-/* ---------- Overlay --------- */
-  function showGuide() {
-  if (html5QrcodeScanner) {
-    try { html5QrcodeScanner.stop(); } catch(e){}
-  }
-  document.getElementById("cameraModal").style.display = "none";
-  document.getElementById("guideOverlay").style.display = "flex";
-  }
-
-  function startGuide() {
-  document.getElementById("guideOverlay").style.display = "none";
-  alert("Mulai tutorial (lanjutkan sesuai step kamu)");
-  }
-
-  function skipGuide() {
-  document.getElementById("guideOverlay").style.display = "none";
-  }
-  function startGuide(){
-  document.getElementById("guideOverlay").style.display="none";
+function startGuide() {
+  const guide = document.getElementById("guideOverlay");
+  if (guide) guide.style.display = "none";
   alert("Tutorial dimulai...");
+}
+
+function skipGuide() {
+  const guide = document.getElementById("guideOverlay");
+  if (guide) guide.style.display = "none";
+}
+
+/* ---------- INIT FIX ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const guide = document.getElementById("guideOverlay");
+  const cam = document.getElementById("cameraModal");
+  if (guide) {
+    guide.style.zIndex = "99999";
+    guide.style.pointerEvents = "auto";
   }
-  function skipGuide(){
-  document.getElementById("guideOverlay").style.display="none";
+  if (cam) {
+    cam.style.zIndex = "9000";
+    cam.style.pointerEvents = "none";
   }
+});
+</script>
 
 
 
