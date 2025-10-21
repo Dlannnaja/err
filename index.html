@@ -1190,5 +1190,35 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const cam = document.getElementById("cameraModal");
+  const guide = document.getElementById("guideOverlay");
+
+  // 🔹 Saat halaman pertama dibuka — pastikan kamera tertutup total
+  if (cam) {
+    cam.style.display = "none";
+    cam.style.pointerEvents = "none";
+    cam.style.zIndex = "1";
+  }
+
+  // 🔹 Pastikan guide overlay bisa diklik
+  if (guide) {
+    guide.style.zIndex = "99999";
+    guide.style.pointerEvents = "auto";
+  }
+
+  // 🔹 Saat popup guide tampil, otomatis tutup kamera
+  const observer = new MutationObserver(() => {
+    if (guide && guide.style.display !== "none" && cam) {
+      cam.style.display = "none";
+      cam.style.pointerEvents = "none";
+      cam.style.zIndex = "1";
+    }
+  });
+  observer.observe(guide, { attributes: true, attributeFilter: ["style"] });
+});
+</script>
+
 </body>
 </html>
