@@ -354,6 +354,27 @@
 #cameraModal { z-index: 9000; }
 #guideOverlay { z-index: 10000; pointer-events: auto; }
 #cameraModal[style*="display:none"] { pointer-events: none !important; }
+    
+/* === DEBUG klik overlay === */
+#cameraModal::before,
+#guideOverlay::before {
+  content: attr(id);
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: red;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 99999;
+}
+#cameraModal {
+  outline: 3px solid rgba(255,0,0,.5);
+}
+#guideOverlay {
+  outline: 3px solid rgba(0,255,0,.5);
+}
 </style>
 
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -1139,6 +1160,26 @@ init()
 </style>
 
 <script>
+
+  <script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const cam=document.getElementById("cameraModal");
+  const guide=document.getElementById("guideOverlay");
+
+  if(cam){
+    // Paksa sembunyikan kamera dulu
+    cam.style.display="none";
+    cam.style.pointerEvents="none";
+    cam.style.zIndex="1";
+  }
+
+  if(guide){
+    guide.style.zIndex="99999";
+    guide.style.pointerEvents="auto";
+  }
+});
+</script>
+
 // Safety fix: pastikan camera modal tertutup saat guide aktif
 document.addEventListener("DOMContentLoaded", () => {
   const cam = document.getElementById("cameraModal");
