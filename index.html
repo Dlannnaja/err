@@ -349,32 +349,6 @@
       font-size: 15px;
     }
   }
-
-/* fixes for overlay stacking & pointer-events */
-#cameraModal { z-index: 9000; }
-#guideOverlay { z-index: 10000; pointer-events: auto; }
-#cameraModal[style*="display:none"] { pointer-events: none !important; }
-    
-/* === DEBUG klik overlay === */
-#cameraModal::before,
-#guideOverlay::before {
-  content: attr(id);
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  background: red;
-  color: #fff;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  z-index: 99999;
-}
-#cameraModal {
-  outline: 3px solid rgba(255,0,0,.5);
-}
-#guideOverlay {
-  outline: 3px solid rgba(0,255,0,.5);
-}
 </style>
 
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -869,47 +843,42 @@ function printReceipt(t){
   }
 }
 
-
 /* ---------- SCAN ---------- */
+<script>
 let html5QrcodeScanner = null;
 let scanTarget = null;
 
 function openCamera(target) {
   scanTarget = target;
-  const modal = document.getElementById('cameraModal');
-  if(modal) modal.style.display = 'flex';
+  document.getElementById('cameraModal').style.display = 'flex';
 
+  // Inisialisasi kamera
   if (html5QrcodeScanner) return;
-  try {
-    html5QrcodeScanner = new Html5Qrcode("cameraReader");
-    const config = { fps: 10, qrbox: 250 };
-    html5QrcodeScanner.start({ facingMode: "environment" }, config, qrCodeMessage => {
-      handleScan(qrCodeMessage);
-      const mode = document.getElementById("scanMode")?.value || "single";
-      const autoSell = document.getElementById("autoSell")?.checked;
-      if (mode === "single" && (scanTarget === "sell" || autoSell)) stopCamera();
-    }).catch(err => {
-      console.error(err);
-      alert("Gagal mengakses kamera: " + err);
-    });
-  } catch(e) {
-    console.error('Scanner init error', e);
-  }
+  html5QrcodeScanner = new Html5Qrcode("cameraReader");
+  const config = { fps: 10, qrbox: 250 };
+  html5QrcodeScanner.start({ facingMode: "environment" }, config, qrCodeMessage => {
+    handleScan(qrCodeMessage);
+    if (document.getElementById("scanMode") && 
+        document.getElementById("scanMode").value === "single" && 
+        (scanTarget === "sell" || document.getElementById("autoSell")?.checked)) {
+      stopCamera();
+    }
+  }).catch(err => {
+    console.error(err);
+    alert("Gagal mengakses kamera: " + err);
+  });
 }
 
 function closeCamera() {
   stopCamera();
-  const modal = document.getElementById('cameraModal');
-  if(modal) modal.style.display = 'none';
+  document.getElementById('cameraModal').style.display = 'none';
 }
 
 function stopCamera() {
   if (html5QrcodeScanner) {
     html5QrcodeScanner.stop().catch(()=>{}).finally(() => {
-      try { html5QrcodeScanner.clear(); } catch(e){}
       html5QrcodeScanner = null;
-      const reader = document.getElementById("cameraReader");
-      if(reader) reader.innerHTML = "";
+      document.getElementById("cameraReader").innerHTML = "";
     });
   }
 }
@@ -918,24 +887,19 @@ function handleScan(msg) {
   if (scanTarget === "sell" || document.getElementById("autoSell")?.checked) {
     addToCart(msg);
   } else {
-    const skuEl = document.getElementById("sku");
-    if(skuEl) skuEl.value = msg;
+    document.getElementById("sku").value = msg;
     alert("Kode Barang terdeteksi: " + msg);
   }
 }
 
-function scanSku() { openCamera("sku"); }
-function startScan(target) { openCamera(target); }
-function stopScan() { closeCamera(); }
-
-/* ---------- GUIDE ---------- */
-    html5QrcodeScanner = null;
-  }
-  const cam = document.getElementById('cameraModal');
-  if(cam) cam.style.display = 'none';
-  document.getElementById("guideOverlay").style.display = "none";
-  alert("Tutorial dimulai...\n1️⃣ Tambah produk\n2️⃣ Restock\n3️⃣ Scan & jual\n4️⃣ Keranjang\n5️⃣ Cetak struk");
+function scanSku() {
+  openCamera("sku");
 }
+
+function startScan(target) {
+  openCamera(target);
+}
+</script>
 
 /* ---------- Overlay --------- */
   function showGuide() {
@@ -946,8 +910,22 @@ function stopScan() { closeCamera(); }
   document.getElementById("guideOverlay").style.display = "flex";
   }
 
-  
-      
+  function startGuide() {
+  document.getElementById("guideOverlay").style.display = "none";
+  alert("Mulai tutorial (lanjutkan sesuai step kamu)");
+  }
+
+  function skipGuide() {
+  document.getElementById("guideOverlay").style.display = "none";
+  }
+  function startGuide(){
+  document.getElementById("guideOverlay").style.display="none";
+  alert("Tutorial dimulai...");
+  }
+  function skipGuide(){
+  document.getElementById("guideOverlay").style.display="none";
+  }
+
 
 
 /* ---------- TABS ---------- */
@@ -1091,9 +1069,9 @@ function renderFinalStock(){
 }
 
 /* ---------- GUIDE ---------- */
-
 function startGuide(){alert("Guide: 1. Tambah produk, 2. Restock, 3. Scan, 4. Keranjang, 5. Checkout & cetak"); skipGuide()}
 function skipGuide(){document.getElementById("guideOverlay").style.display="none"}
+
 /* ---------- INIT ---------- */
 /* ---------- INIT ---------- */
 function init(){
@@ -1143,82 +1121,65 @@ function init(){
 
 init()
 </script>
-  
+</body>
+</html>
+
   <style>
-/* --- Fix overlay tumpang tindih --- */
-#cameraModal {
-  z-index: 9000;
-  pointer-events: none; /* jangan blokir klik apapun kalau tertutup */
-}
-#cameraModal[style*="display: flex"] {
-  pointer-events: auto; /* aktif lagi hanya saat kamera tampil */
-}
-#guideOverlay {
-  z-index: 10000; /* pastikan paling atas */
-  pointer-events: auto;
-}
-</style>
+  /* === FIX FINAL untuk overlay & hilangkan debug === */
+  #cameraModal {
+    z-index: 9000;
+  }
+  #cameraModal[style*="display:none"] {
+    pointer-events: none !important;
+  }
 
-<script>
+  #guideOverlay {
+    z-index: 99999 !important;
+    pointer-events: auto !important;
+  }
+  #guideOverlay * {
+    pointer-events: auto !important;
+  }
+
+  /* Hapus semua border/debug */
+  #cameraModal::before,
+  #guideOverlay::before {
+    content: none !important;
+  }
+  #cameraModal, #guideOverlay {
+    outline: none !important;
+  }
+  </style>
 
   <script>
-document.addEventListener("DOMContentLoaded",()=>{
-  const cam=document.getElementById("cameraModal");
-  const guide=document.getElementById("guideOverlay");
+  // === FIX BEHAVIOR GUIDE & CAMERA ===
+  document.addEventListener("DOMContentLoaded", () => {
+    const cam = document.getElementById("cameraModal");
+    const guide = document.getElementById("guideOverlay");
 
-  if(cam){
-    // Paksa sembunyikan kamera dulu
-    cam.style.display="none";
-    cam.style.pointerEvents="none";
-    cam.style.zIndex="1";
-  }
-
-  if(guide){
-    guide.style.zIndex="99999";
-    guide.style.pointerEvents="auto";
-  }
-});
-</script>
-
-// Safety fix: pastikan camera modal tertutup saat guide aktif
-document.addEventListener("DOMContentLoaded", () => {
-  const cam = document.getElementById("cameraModal");
-  const guide = document.getElementById("guideOverlay");
-  if (cam && guide && guide.style.display !== "none") {
-    cam.style.display = "none";
-  }
-});
-</script>
-
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const cam = document.getElementById("cameraModal");
-  const guide = document.getElementById("guideOverlay");
-
-  // 🔹 Saat halaman pertama dibuka — pastikan kamera tertutup total
-  if (cam) {
-    cam.style.display = "none";
-    cam.style.pointerEvents = "none";
-    cam.style.zIndex = "1";
-  }
-
-  // 🔹 Pastikan guide overlay bisa diklik
-  if (guide) {
-    guide.style.zIndex = "99999";
-    guide.style.pointerEvents = "auto";
-  }
-
-  // 🔹 Saat popup guide tampil, otomatis tutup kamera
-  const observer = new MutationObserver(() => {
-    if (guide && guide.style.display !== "none" && cam) {
-      cam.style.display = "none";
+    // Tutup kamera jika masih kebuka
+    if (cam) {
       cam.style.pointerEvents = "none";
+      if (cam.style.display !== "none") cam.style.display = "none";
       cam.style.zIndex = "1";
     }
-  });
-  observer.observe(guide, { attributes: true, attributeFilter: ["style"] });
-});
-</script>
 
+    // Pastikan popup guide bisa diklik
+    if (guide) {
+      guide.style.zIndex = "99999";
+      guide.style.pointerEvents = "auto";
+    }
+
+    // Jika guide muncul lagi, kamera otomatis tertutup
+    const observer = new MutationObserver(() => {
+      if (guide && getComputedStyle(guide).display !== "none" && cam) {
+        cam.style.display = "none";
+        cam.style.pointerEvents = "none";
+        cam.style.zIndex = "1";
+      }
+    });
+    if (guide) observer.observe(guide, { attributes: true, attributeFilter: ["style"] });
+  });
+  </script>
 </body>
 </html>
