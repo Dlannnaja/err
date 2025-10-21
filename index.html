@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>POS Sembako Mobile-Friendly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <style>
+  :root {
+    --bg: #f7f9fc;
+    --card: #ffffff;
+    --accent: #0b74da;
+    --accent-dark: #094fa1;
+    --muted: #6b7280;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --radius: 10px;
+    --font: "Poppins", system-ui, sans-serif;
+    --font-size-base: 13px;
+    --font-size-small: 11px;
+    --spacing-sm: 6px;
+    --spacing-md: 10px;
+    --spacing-lg: 14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background-color: var(--bg);
+    color: #111;
+    overflow-x: hidden;
+    font-size: var(--font-size-base);
+  }
+  header {
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    padding: var(--spacing-lg) var(--spacing-md);
+    box-shadow: var(--shadow);
+  }
+  .container { max-width: 100%; margin: 0 auto; padding: var(--spacing-md); }
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  #cameraModal {
+    display:none;
+    position:fixed;
+    top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:9000;
+  }
+  #cameraModal[style*="display:none"] { pointer-events:none !important; }
+  #guideOverlay {
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.65);
+    display:flex;justify-content:center;align-items:center;
+    z-index:10000;pointer-events:auto;
+  }
+  #guideBox {
+    background:#fff;padding:var(--spacing-lg);
+    border-radius:var(--radius);max-width:90%;width:300px;
+    box-shadow:var(--shadow);text-align:center;
+  }
+  #guideBox button {
+    margin:var(--spacing-sm) var(--spacing-md);
+    width:110px;font-size:var(--font-size-small);
+  }
+  </style>
+</head>
+<body>
+  <header><h2 style="margin:0;font-size:1.25rem">POS Toko Sembako</h2></header>
+
+  <div id="cameraModal">
+    <div style="background:#fff;border-radius:10px;padding:20px;max-width:400px;width:90%;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0;margin-bottom:10px">📷 Scan Barcode</h3>
+      <div id="cameraReader" style="width:100%;background:#000;min-height:250px;border-radius:8px;overflow:hidden"></div>
+      <div style="display:flex;justify-content:end;margin-top:10px;gap:10px">
+        <button class="ghost small" onclick="closeCamera()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="guideOverlay">
+    <div id="guideBox">
+      <h3>Selamat Datang di POS Toko Sembako</h3>
+      <p>Klik mulai untuk tutorial singkat semua fitur, atau skip jika sudah hafal.</p>
+      <button onclick="startGuide()">Mulai</button>
+      <button onclick="skipGuide()">Skip</button>
+    </div>
+  </div>
+
+<script>
+/* ---------- CAMERA SCAN ---------- */
+let html5QrcodeScanner = null;
+let scanTarget = null;
+
+function openCamera(target) {
+  scanTarget = target;
+  const modal = document.getElementById('cameraModal');
+  modal.style.display = 'flex';
+
+  if (html5QrcodeScanner) return;
+  html5QrcodeScanner = new Html5Qrcode("cameraReader");
+  const config = { fps: 10, qrbox: 250 };
+  html5QrcodeScanner.start({ facingMode: "environment" }, config, qrCodeMessage => {
+    handleScan(qrCodeMessage);
+    const mode = document.getElementById("scanMode")?.value || "single";
+    const autoSell = document.getElementById("autoSell")?.checked;
+    if (mode === "single" && (scanTarget === "sell" || autoSell)) stopCamera();
+  }).catch(err => {
+    console.error(err);
+    alert("Gagal mengakses kamera: " + err);
+  });
+}
+
+function closeCamera() {
+  stopCamera();
+  document.getElementById('cameraModal').style.display = 'none';
+}
+
+function stopCamera() {
+  if (html5QrcodeScanner) {
+    html5QrcodeScanner.stop().catch(()=>{}).finally(() => {
+      html5QrcodeScanner = null;
+      document.getElementById("cameraReader").innerHTML = "";
+    });
+  }
+}
+
+function handleScan(msg) {
+  if (scanTarget === "sell" || document.getElementById("autoSell")?.checked) {
+    alert("Produk dijual otomatis: " + msg);
+  } else {
+    document.getElementById("sku").value = msg;
+    alert("Kode Barang terdeteksi: " + msg);
+  }
+}
+
+function scanSku() { openCamera("sku"); }
+function startScan(target) { openCamera(target); }
+
+/* ---------- GUIDE ---------- */
+function startGuide() {
+  document.getElementById("guideOverlay").style.display = "none";
+  alert("Tutorial dimulai...
+1️⃣ Tambah produk
+2️⃣ Restock
+3️⃣ Scan & jual
+4️⃣ Keranjang
+5️⃣ Cetak struk");
+}
+function skipGuide() {
+  document.getElementById("guideOverlay").style.display = "none";
+}
+</script>
+</body>
+</html>
