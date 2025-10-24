@@ -1413,6 +1413,7 @@ function startScan(target) { openCamera(target); }
       tooltip.style.maxWidth = "320px";
       tooltip.style.zIndex = "100001";
       tooltip.style.fontSize = "13px";
+      tooltip.style.pointerEvents = "auto"; // allow clicking the button inside tooltip
       document.body.appendChild(tooltip);
     }
 
@@ -1440,25 +1441,21 @@ function startScan(target) { openCamera(target); }
   currentStep = i;
   const step = steps[i];
   if (!step || !step.selector) {
-    // jika selector tidak ada, lanjut
-    setTimeout(nextGuide,60)
+    setTimeout(nextGuide,60);
     return;
   }
 
   const el = document.querySelector(step.selector);
   if (!el) {
     console.warn("Guide: element not found:", step.selector);
-    // lanjutkan, jangan stuck
-    setTimeout(nextGuide,60)
+    setTimeout(nextGuide,60);
     return;
   }
 
   createGuideElements();
 
-  // pastikan element terlihat -> scroll dan beri sedikit delay sebelum positioning
-  try {
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
-  } catch(e){}
+  // ensure visible
+  try { el.scrollIntoView({ behavior: "smooth", block: "center" }); } catch(e){}
 
   setTimeout(()=>{
     const rect = el.getBoundingClientRect();
@@ -1479,37 +1476,111 @@ function startScan(target) { openCamera(target); }
       </div>
     `;
 
-    // posisi tooltip adaptif
+    // adaptive placement
+    const defaultTooltipWidth = 320;
     const tooltipHeight = 140;
     const spaceBelow = window.innerHeight - rect.bottom;
     let tooltipTop;
+    let left = rect.left + window.scrollX;
+    let tooltipWidth = defaultTooltipWidth;
 
-    if (spaceBelow > tooltipHeight + 20) {
-      tooltipTop = rect.bottom + window.scrollY + 12;
-    } else if (rect.top > tooltipHeight + 20) {
-      tooltipTop = rect.top + window.scrollY - tooltipHeight - 12;
-    } else {
-      tooltipTop = window.scrollY + window.innerHeight / 2 - tooltipHeight / 2;
+    // Special placement: checkout (keep previous behaviour)
+    if (step.selector === '#checkoutBtn') {
+      const spaceRight = window.innerWidth - rect.right;
+      const spaceLeft = rect.left;
+      const topCentered = rect.top + window.scrollY + (rect.height / 2) - (tooltipHeight / 2);
+
+      if (spaceRight > tooltipWidth + 20) {
+        tooltipTop = topCentered;
+        left = rect.right + window.scrollX + 12;
+      } else if (spaceLeft > tooltipWidth + 20) {
+        tooltipTop = topCentered;
+        left = rect.left + window.scrollX - tooltipWidth - 12;
+      } else {
+        if (spaceBelow > tooltipHeight + 20) {
+          tooltipTop = rect.bottom + window.scrollY + 12;
+        } else if (rect.top > tooltipHeight + 20) {
+          tooltipTop = rect.top + window.scrollY - tooltipHeight - 12;
+        } else {
+          tooltipTop = topCentered;
+        }
+        left = Math.min(Math.max(rect.left + window.scrollX - 40, 10), window.innerWidth + window.scrollX - (tooltipWidth + 40));
+      }
+    }
+    // Special placement: start-scan button — place closer and center vertically
+    else if (step.selector === '#btnStartScan') {
+      // use a slightly narrower tooltip for side placement so it fits better
+      tooltipWidth = 260;
+      const spaceRight = window.innerWidth - rect.right;
+      const spaceLeft = rect.left;
+      const verticalCenter = rect.top + window.scrollY + (rect.height / 2);
+
+      if (spaceRight >= tooltipWidth + 12) {
+        // place to the right, vertically centered on the button
+        tooltipTop = verticalCenter - (tooltipHeight / 2);
+        left = rect.right + window.scrollX + 10;
+      } else if (spaceLeft >= tooltipWidth + 12) {
+        // place to the left, vertically centered
+        tooltipTop = verticalCenter - (tooltipHeight / 2);
+        left = rect.left + window.scrollX - tooltipWidth - 10;
+      } else {
+        // fallback: below if enough space, else above, center horizontally relative to the button
+        if (spaceBelow > tooltipHeight + 12) {
+          tooltipTop = rect.bottom + window.scrollY + 10;
+        } else if (rect.top > tooltipHeight + 12) {
+          tooltipTop = rect.top + window.scrollY - tooltipHeight - 10;
+        } else {
+          // center in viewport
+          tooltipTop = window.scrollY + window.innerHeight / 2 - tooltipHeight / 2;
+        }
+        // center horizontally near button
+        left = rect.left + window.scrollX + (rect.width / 2) - (tooltipWidth / 2);
+      }
+
+      // clamp inside viewport horizontally & vertically
+      const minLeft = window.scrollX + 8;
+      const maxLeft = window.scrollX + window.innerWidth - (tooltipWidth + 8);
+      left = Math.min(Math.max(left, minLeft), Math.max(minLeft, maxLeft));
+
+      const minTop = window.scrollY + 8;
+      const maxTop = window.scrollY + window.innerHeight - (tooltipHeight + 8);
+      tooltipTop = Math.min(Math.max(tooltipTop, minTop), Math.max(minTop, maxTop));
+
+      // apply the narrower width so it uses the calculated tooltipWidth
+      tooltip.style.maxWidth = tooltipWidth + "px";
+    }
+    // Default placement for other steps
+    else {
+      tooltipWidth = defaultTooltipWidth;
+      tooltip.style.maxWidth = tooltipWidth + "px";
+
+      if (spaceBelow > tooltipHeight + 20) {
+        tooltipTop = rect.bottom + window.scrollY + 12;
+      } else if (rect.top > tooltipHeight + 20) {
+        tooltipTop = rect.top + window.scrollY - tooltipHeight - 12;
+      } else {
+        tooltipTop = window.scrollY + window.innerHeight / 2 - tooltipHeight / 2;
+      }
+
+      if (left + tooltipWidth > window.innerWidth + window.scrollX - 10) {
+        left = window.innerWidth + window.scrollX - tooltipWidth - 10;
+      }
+      if (left < 10) left = 10;
     }
 
-    let left = rect.left + window.scrollX;
-    if (left + 340 > window.innerWidth + window.scrollX)
-      left = window.innerWidth + window.scrollX - 360;
-    if (left < 10) left = 10;
-
-    tooltip.style.top = tooltipTop + "px";
-    tooltip.style.left = left + "px";
+    // Final apply
+    tooltip.style.top = (tooltipTop || (window.scrollY + 20)) + "px";
+    tooltip.style.left = (left || 10) + "px";
     tooltip.style.display = "block";
     tooltip.style.opacity = 0;
-    tooltip.style.transition = "opacity 0.18s ease";
-    setTimeout(() => (tooltip.style.opacity = 1), 20);
+    tooltip.style.transition = "opacity 0.18s ease, transform 0.12s ease";
+    tooltip.style.transform = "translateY(6px)";
+    setTimeout(() => { tooltip.style.opacity = 1; tooltip.style.transform = "translateY(0)"; }, 20);
 
-    // attach handler with small debounce to avoid double clicks
     const nextBtn = document.getElementById("guideNextBtn");
     if(nextBtn){
       nextBtn.onclick = function (e) {
         e.preventDefault();
-        // disable quickly to avoid multiple clicks
         nextBtn.disabled = true;
         setTimeout(()=> nextGuide(), 80);
       };
