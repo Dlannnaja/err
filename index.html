@@ -1383,7 +1383,9 @@ function startScan(target) { openCamera(target); }
   let currentStep = 0;
   let highlightBox = null;
   let tooltip = null;
-  let resizeObserver = null;
+  let resizeHandler = null;
+  // flag that indicates guide is actively running
+  window.guideActive = false;
 
   function createGuideElements(){
     // jika sudah dibuat, pakai yang ada
@@ -1415,13 +1417,17 @@ function startScan(target) { openCamera(target); }
     }
 
     // reposition on resize for robustness
-    if(!resizeObserver){
-      window.addEventListener('resize', () => {
-        if(currentStep != null) {
-          setTimeout(()=> showStep(currentStep), 80)
+    if(!resizeHandler){
+      resizeHandler = () => {
+        // only reposition while guide is active
+        if(window.guideActive){
+          setTimeout(()=> {
+            // only show if still guiding and tooltip/highlight exist
+            if(window.guideActive) showStep(currentStep)
+          }, 80)
         }
-      })
-      resizeObserver = true
+      };
+      window.addEventListener('resize', resizeHandler)
     }
   }
 
@@ -1521,8 +1527,18 @@ function startScan(target) { openCamera(target); }
   }
 
   function endGuide(){
+    // mark guide inactive so resize handler won't re-open it
+    window.guideActive = false;
+
     if(highlightBox){ highlightBox.remove(); highlightBox = null; }
     if(tooltip){ tooltip.remove(); tooltip = null; }
+
+    // remove resize handler if registered
+    if(resizeHandler){
+      try{ window.removeEventListener('resize', resizeHandler) }catch(e){}
+      resizeHandler = null;
+    }
+
     const overlay = document.getElementById("guideOverlay");
     if(overlay) overlay.style.display = "none";
     currentStep = 0;
@@ -1533,14 +1549,18 @@ function startScan(target) { openCamera(target); }
     const overlay = document.getElementById("guideOverlay");
     if(overlay) overlay.style.display = "none";
     currentStep = 0;
+    window.guideActive = true;
     createGuideElements();
     showStep(0);
   }
 
   function skipGuide(){
+    // stop and cleanup
+    window.guideActive = false;
     const overlay = document.getElementById("guideOverlay");
     if(overlay) overlay.style.display = "none";
-    endGuide();
+    // ensure any highlight/tooltip removed
+    if(typeof endGuide === "function") endGuide();
   }
 
   window.createGuideElements = createGuideElements;
@@ -1661,15 +1681,6 @@ function renderFinalStock(){
   })
 }
 
-/* ---------- GUIDE (interaktif) ---------- */
-function startGuide() {
-  document.getElementById("guideOverlay").style.display = "none";
-  currentStep = 0;
-  createGuideElements();
-  showStep(currentStep);
-}
-function skipGuide(){document.getElementById("guideOverlay").style.display="none"}
-
 /* ---------- INIT ---------- */
 function init(){
   // ensure autoPrint is NOT checked on load (safety)
@@ -1709,7 +1720,9 @@ function init(){
   if(updated) localStorage.setItem("sales", JSON.stringify(sales))
 
   render(); renderFinalStock(); loadRestock(); setInterval(renderFinalStock,5000)
-  document.getElementById("guideOverlay").style.display="flex"
+  // show guide overlay on first load (keperluan UX)
+  const guideOv = document.getElementById("guideOverlay");
+  if(guideOv) guideOv.style.display = "flex";
 }
 
 init()
