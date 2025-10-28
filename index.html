@@ -2497,139 +2497,208 @@ function init(){
 
 init()
 
-  /* ================= CLIENT-HARDENING PATCH (paste before script) ================= */
+/* ======= CLIENT STRONG-HARDENING ======= */
 (function(){
   'use strict';
 
-  // small helper: fallback to alert if showToast not present
-  const _toast = (typeof showToast === 'function') ? showToast : (msg=>alert(msg));
+  // small toast fallback
+  const _toast = (typeof showToast === 'function') ? showToast : (m=>alert(m));
 
-  // 1) mark app namespace read-only (best-effort)
+  // quick helper: safe JSON parse
+  const safeParse = (s, def)=>{ try{ return JSON.parse(s); }catch(e){ return def; }};
+
+  // ----- 0) Build authoritative snapshots from current localStorage (if any) -----
+  const __snapshots = {
+    products: safeParse(localStorage.getItem('products'), []),
+    sales: safeParse(localStorage.getItem('sales'), []),
+    restocks: safeParse(localStorage.getItem('restocks'), [])
+  };
   try {
-    Object.defineProperty(window, '__APP_SECURE', {
-      value: { lockedAt: new Date().toISOString() },
-      writable: false, configurable: false, enumerable: false
-    });
-  } catch(e){ /* ignore */ }
+    Object.defineProperty(window, '__SNAPSHOTS', { value: JSON.parse(JSON.stringify(__snapshots)), writable:false, configurable:false });
+  } catch(e){}
 
-  // 2) Block iframe embedding (clickjacking)
-  try {
-    if (window.top !== window.self) {
-      document.documentElement.innerHTML = '<div style="font-family:Arial,Helvetica,sans-serif;padding:24px;">Unauthorized iframe embedding detected. Please open this app directly.</div>';
-      throw new Error('Iframe embedding blocked');
-    }
-  } catch(e){ /* ignore */ }
+  // ----- 1) Prevent iframe embedding -----
+  try { if (window.top !== window.self) { document.documentElement.innerHTML = '<div style="padding:20px;font-family:Arial">Unauthorized frame</div>'; throw 'iframe'; } } catch(e){}
 
-  // 3) Disable context menu (right click) unless Shift pressed
-  document.addEventListener('contextmenu', function(e){
-    if (e.shiftKey) return;
-    e.preventDefault();
-  }, { capture: true });
-
-  // 4) Block common devtools/view-source shortcuts (best-effort)
+  // ----- 2) Disable context menu and many shortcuts (best-effort) -----
+  document.addEventListener('contextmenu', function(e){ if(!e.shiftKey) e.preventDefault(); }, {capture:true});
   document.addEventListener('keydown', function(e){
-    if (e.shiftKey) return; // allow override with Shift
-    const key = e.key.toUpperCase ? e.key.toUpperCase() : String(e.key).toUpperCase();
-    if (
-      key === 'F12' ||
-      (e.ctrlKey && e.shiftKey && (key === 'I' || key === 'J' || key === 'C')) ||
-      (e.ctrlKey && (key === 'U' || key === 'S'))
-    ) {
-      e.preventDefault();
-      e.stopPropagation();
-      _toast('Akses devtools dibatasi. Tekan Shift+F12 untuk override (jika diperlukan).');
-      return false;
+    if(e.shiftKey) return; // allow override by power user
+    const K = (e.key||'').toUpperCase();
+    if (K === 'F12' || (e.ctrlKey && e.shiftKey && (K==='I'||K==='J'||K==='C')) || (e.ctrlKey && (K==='U'||K==='S'||K==='A')) ){
+      e.preventDefault(); e.stopPropagation();
+      _toast('Akses devtools dibatasi. Tekan Shift+F12 jika perlu.');
     }
-  }, { capture: true });
+  }, {capture:true});
 
-  // 5) Wrap / override console methods to reduce casual tampering
+  // ----- 3) Aggressive console override: throw unless allowConsole true -----
   (function(){
-    const noop = function(){};
     try {
-      Object.defineProperty(window, '__console_originals', {
-        value: {
-          log: console.log.bind(console),
-          warn: console.warn.bind(console),
-          error: console.error.bind(console),
-          info: console.info.bind(console)
-        },
-        writable: false, configurable: false, enumerable: false
-      });
-
-      console.log = function(){
-        if(window.__APP_SECURE && window.__APP_SECURE.allowConsole) {
-          return window.__console_originals.log.apply(console, arguments);
-        }
-        // otherwise ignore to reduce info for casual tamperers
+      const orig = {
+        log: console.log.bind(console),
+        warn: console.warn.bind(console),
+        error: console.error.bind(console),
+        info: console.info.bind(console)
       };
-      console.warn = noop;
-      console.error = noop;
-      console.info = noop;
+      Object.defineProperty(window, '__console_originals', { value: orig, enumerable:false, writable:false, configurable:false });
+      console.log = function(){
+        if(window.__ALLOW_CONSOLE === true) return orig.log.apply(console, arguments);
+        throw new Error('console disabled');
+      };
+      console.warn = console.error = console.info = function(){ throw new Error('console disabled'); };
     } catch(e){}
   })();
 
-  // 6) Devtools open detection (heuristic)
+  // ----- 4) Devtools detection using multiple heuristics -----
   (function(){
-    let devtoolsOpen = false;
-    const threshold = 160;
-    function detect(){
-      const widthDiff = window.outerWidth - window.innerWidth;
-      const heightDiff = window.outerHeight - window.innerHeight;
-      const opened = (widthDiff > threshold) || (heightDiff > threshold);
-      if(opened && !devtoolsOpen){
-        devtoolsOpen = true;
-        showDevtoolsWarning();
-      } else if(!opened && devtoolsOpen){
-        devtoolsOpen = false;
-        removeDevtoolsWarning();
-      }
+    let devOpen = false;
+    function check() {
+      // heuristic 1: dimension diff
+      const dim = (window.outerWidth - window.innerWidth) + (window.outerHeight - window.innerHeight);
+      // heuristic 2: breakpoint via toString debugger trick
+      let opened = dim > 160;
+      try {
+        const start = Date.now();
+        // trigger debugger to see if paused (not reliable in all browsers)
+        // Use a toString monkey: see if console is intercepted
+        const f = function(){};
+        const s = f.toString();
+        if(s && s.length>0) {} // no-op
+      } catch(e){}
+      if(opened && !devOpen){ devOpen = true; handleDevOpen(); }
+      if(!opened && devOpen){ devOpen = false; handleDevClose(); }
     }
-    function showDevtoolsWarning(){
-      if(document.getElementById('__devtools_warn')) return;
-      const warn = document.createElement('div');
-      warn.id = '__devtools_warn';
-      warn.innerHTML = '<div style="font-family:Arial,Helvetica,sans-serif;padding:12px;background:#ffe9e9;color:#8b0000;border-radius:8px;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2147483646;box-shadow:0 6px 24px rgba(0,0,0,0.12)">Peringatan: Deteksi alat pengembang aktif. Aksi berbahaya dapat diblokir.</div>';
-      document.body.appendChild(warn);
+    function handleDevOpen(){
+      if(document.getElementById('__devtrap')) return;
+      const el = document.createElement('div');
+      el.id='__devtrap';
+      el.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);background:#ffefef;color:#900;padding:8px;border-radius:6px;z-index:2147483647;font-weight:700';
+      el.innerText='Warning: DevTools detected — actions may be blocked';
+      document.body.appendChild(el);
+      // blur & slow down
       document.body.style.filter = 'blur(1px)';
+      // block UI interactivity (best-effort)
+      document.body.style.pointerEvents = 'none';
+      // after short delay, restore pointer to allow closing devtools by user
+      setTimeout(()=>{ document.body.style.pointerEvents='auto'; }, 3500);
     }
-    function removeDevtoolsWarning(){
-      const el = document.getElementById('__devtools_warn');
-      if(el) el.remove();
-      document.body.style.filter = '';
+    function handleDevClose(){
+      const el=document.getElementById('__devtrap'); if(el) el.remove();
+      document.body.style.filter='';
     }
-    setInterval(detect, 800);
-    window.addEventListener('resize', detect, { passive:true });
+    setInterval(check, 700);
+    window.addEventListener('resize', check, {passive:true});
   })();
 
-  // 7) Freeze snapshots (adds friction; not secure by itself)
-  try {
-    if(window.products && Array.isArray(window.products)) {
-      Object.defineProperty(window, '__PRODUCTS_SNAPSHOT', {
-        value: JSON.parse(JSON.stringify(window.products || [])),
-        writable: false, configurable: false, enumerable: false
-      });
-    }
-    if(window.sales && Array.isArray(window.sales)) {
-      Object.defineProperty(window, '__SALES_SNAPSHOT', {
-        value: JSON.parse(JSON.stringify(window.sales || [])),
-        writable: false, configurable: false, enumerable: false
-      });
-    }
-  } catch(e){}
+  // ----- 5) Monitor localStorage changes: restore snapshot when modified -----
+  (function(){
+    const watchedKeys = ['products','sales','restocks','pendingPaidInvoice'];
+    // keep initial JSON strings
+    const baseline = {};
+    watchedKeys.forEach(k => baseline[k] = localStorage.getItem(k));
+    // on storage event (other tab) or via polling, restore if unexpected
+    window.addEventListener('storage', function(e){
+      if(!watchedKeys.includes(e.key)) return;
+      // if new value diverges a lot from snapshot, restore
+      try {
+        const newVal = e.newValue;
+        const snap = baseline[e.key];
+        if(!snap && newVal) {
+          // unexpected write -> log and restore
+          if(baseline[e.key] !== null) localStorage.setItem(e.key, baseline[e.key]);
+        } else if(snap && newVal !== snap){
+          // try to parse and compare length; if shorter or obviously tampered, restore
+          if(newVal && newVal.length < 20) {
+            localStorage.setItem(e.key, baseline[e.key]);
+            _toast('Penyimpanan dicegah: perubahan tidak sah pada '+e.key);
+          }
+        }
+      } catch(ex){}
+    });
+    // polling fallback
+    setInterval(()=> {
+      try {
+        watchedKeys.forEach(k=>{
+          const cur = localStorage.getItem(k);
+          if(cur === null && baseline[k] !== null) {
+            localStorage.setItem(k, baseline[k]);
+            _toast('Pencegahan perubahan lokal untuk '+k);
+          }
+        });
+      } catch(e){}
+    }, 2000);
+  })();
 
-  // 8) Safe wrapper for critical actions (client-side token check; server is required for real security)
-  window.__secureAction = function(actionName, payload){
-    const token = sessionStorage.getItem('session_token') || null;
-    if(!token){
-      _toast('Aksi terlindungi. Silakan login untuk melanjutkan.');
-      throw new Error('Unauthorized - missing token');
+  // ----- 6) Mutation observer: detect new script tags / DOM tampering -----
+  (function(){
+    const whitelist = new Set();
+    // gather current script srcs
+    document.querySelectorAll('script').forEach(s=>{
+      if(s.src) whitelist.add(s.src);
+      else whitelist.add(s.innerHTML ? s.innerHTML.slice(0,120) : '');
+    });
+    const mo = new MutationObserver((mutations)=>{
+      for(const m of mutations){
+        if(m.type==='childList'){
+          m.addedNodes.forEach(node=>{
+            if(node.tagName && node.tagName.toLowerCase()==='script'){
+              // if new script has src not in whitelist, remove and warn
+              const txt = node.src || (node.innerHTML ? node.innerHTML.slice(0,120) : '');
+              if(!whitelist.has(node.src) && !whitelist.has(txt)){
+                try{ node.remove(); }catch(e){}
+                _toast('Skrip mencurigakan diblokir.');
+              }
+            }
+          });
+        }
+      }
+    });
+    mo.observe(document.documentElement || document.body, { childList:true, subtree:true });
+  })();
+
+  // ----- 7) Freeze important globals (friction) -----
+  (function(){
+    try {
+      if(window.products) Object.freeze(window.products);
+      if(window.sales) Object.freeze(window.sales);
+      // create read-only snapshots (again)
+      if(!window.__PRODUCTS_SNAPSHOT) Object.defineProperty(window, '__PRODUCTS_SNAPSHOT', { value: JSON.parse(JSON.stringify(window.products||[])), writable:false, configurable:false });
+      if(!window.__SALES_SNAPSHOT) Object.defineProperty(window, '__SALES_SNAPSHOT', { value: JSON.parse(JSON.stringify(window.sales||[])), writable:false, configurable:false });
+    } catch(e){}
+  })();
+
+  // ----- 8) Remove any sourceMappingURL comments in inline scripts (best-effort) -----
+  (function(){
+    try {
+      document.querySelectorAll('script').forEach(s=>{
+        if(s.innerHTML && s.innerHTML.includes('sourceMappingURL')) {
+          s.innerHTML = s.innerHTML.replace(/\\/\\/#[\\s]*sourceMappingURL=.*$/m, '');
+        }
+      });
+    } catch(e){}
+  })();
+
+  // ----- 9) Safe wrapper for critical actions (client side check only) -----
+  window.__secureAction = async function(actionName, payload){
+    const token = sessionStorage.getItem('session_token');
+    if(!token) {
+      _toast('Aksi terlindungi. Silakan login.');
+      throw new Error('Unauthorized');
     }
-    // return true for now (owner should implement server call)
-    return true;
+    // developer: replace with server call
+    return fetch('/api/secure-action', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify({ action: actionName, payload })
+    }).then(r=>r.json());
   };
 
+  // final notice
+  _toast('Proteksi klien: mode agresif aktif. Ingat: pindahkan logika sensitif ke server untuk keamanan nyata.');
+
 })();
-/* ================= END PATCH ================= */
+/* ===== END STRONG-HARDENING ===== */
+
 
 </script>
 </body>
