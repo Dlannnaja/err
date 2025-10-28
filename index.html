@@ -803,9 +803,17 @@
             <div class="row">
               <div class="col">
                 <label class="muted">Kode Barang / SKU</label>
-                <div style="display:flex;gap:var(--spacing-sm)">
-                  <input id="sku" placeholder="Kode Barang" type="text" required />
-                  <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
+                <div style="display:flex;gap:var(--spacing-sm);align-items:center">
+                <input id="sku" placeholder="Kode Barang" type="text" required />
+
+                <!-- 🔽 Pilihan sumber scan -->
+                  <select id="skuScanSource" class="small" style="max-width:130px;padding:4px;border-radius:6px;">
+                    <option value="camera">📷 Kamera</option>
+                    <option value="scanner">🔌 Scanner</option>
+                  </select>
+
+                <!-- Tombol scan -->
+                <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
                 </div>
               </div>
               <div class="col">
@@ -2017,14 +2025,84 @@ document.addEventListener("keydown", function (e) {
   scannerTimer = setTimeout(() => (scannerBuffer = ""), 300);
 });
 
-  function scanSku() {
-  try {
-    openCamera("sku");
-  } catch (err) {
-    showToast("📷 Kamera tidak tersedia, gunakan alat scanner fisik.");
+  let html5QrCodeInstance = null;
+let activeScanMode = null;
+let isSkuScanMode = false;
+
+function scanSku() {
+  const mode = document.getElementById("skuScanSource")?.value || "camera";
+  activeScanMode = mode;
+
+  // selalu hentikan kamera dulu biar gak bentrok
+  stopCamera();
+
+  // ==========================
+  // 🔌 MODE SCANNER (alat USB)
+  // ==========================
+  if (mode === "scanner") {
+    isSkuScanMode = true;
+
+    const skuInput = document.getElementById("sku");
+    if (skuInput) {
+      skuInput.focus();
+      showToast("🔌 Mode scanner aktif — arahkan alat ke barcode");
+    }
+
+    // tampilkan tombol tutup scanner
+    addScannerCloseButton();
+    return; // keluar di sini, JANGAN buka kamera
   }
+
+  // ==========================
+  // 📷 MODE KAMERA
+  // ==========================
+  const modal = document.getElementById("cameraModal");
+  const readerDiv = document.getElementById("cameraReader");
+
+  if (!readerDiv) {
+    alert("Area kamera tidak ditemukan.");
+    return;
+  }
+
+  modal.style.display = "flex";
+  modal.style.pointerEvents = "auto";
+  modal.style.zIndex = "9000";
+
+  // buat tombol tutup kamera
+  addCameraCloseButton();
+
+  // mulai scan kamera
+  html5QrCodeInstance = new Html5Qrcode("cameraReader");
+  html5QrCodeInstance.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    (decodedText) => {
+      document.getElementById("sku").value = decodedText.trim();
+      showToast("✅ Kode terdeteksi: " + decodedText);
+      stopCamera();
+    },
+    () => {}
+  ).catch(err => {
+    showToast("⚠️ Gagal membuka kamera: " + err.message);
+    stopCamera();
+  });
 }
 
+function stopCamera() {
+  const modal = document.getElementById("cameraModal");
+  if (html5QrCodeInstance) {
+    html5QrCodeInstance.stop().catch(()=>{}).finally(()=>{
+      html5QrCodeInstance = null;
+    });
+  }
+  if (modal) {
+    modal.style.display = "none";
+    modal.style.pointerEvents = "none";
+  }
+  removeScannerCloseButton();
+  removeCameraCloseButton();
+  activeScanMode = null;
+}
 
 /* === GUIDE INTERAKTIF (IIFE) simplified reference (kept as before) === */
 (function(){
