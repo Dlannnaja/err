@@ -2496,6 +2496,141 @@ function init(){
 }
 
 init()
+
+  /* ================= CLIENT-HARDENING PATCH (paste before script) ================= */
+(function(){
+  'use strict';
+
+  // small helper: fallback to alert if showToast not present
+  const _toast = (typeof showToast === 'function') ? showToast : (msg=>alert(msg));
+
+  // 1) mark app namespace read-only (best-effort)
+  try {
+    Object.defineProperty(window, '__APP_SECURE', {
+      value: { lockedAt: new Date().toISOString() },
+      writable: false, configurable: false, enumerable: false
+    });
+  } catch(e){ /* ignore */ }
+
+  // 2) Block iframe embedding (clickjacking)
+  try {
+    if (window.top !== window.self) {
+      document.documentElement.innerHTML = '<div style="font-family:Arial,Helvetica,sans-serif;padding:24px;">Unauthorized iframe embedding detected. Please open this app directly.</div>';
+      throw new Error('Iframe embedding blocked');
+    }
+  } catch(e){ /* ignore */ }
+
+  // 3) Disable context menu (right click) unless Shift pressed
+  document.addEventListener('contextmenu', function(e){
+    if (e.shiftKey) return;
+    e.preventDefault();
+  }, { capture: true });
+
+  // 4) Block common devtools/view-source shortcuts (best-effort)
+  document.addEventListener('keydown', function(e){
+    if (e.shiftKey) return; // allow override with Shift
+    const key = e.key.toUpperCase ? e.key.toUpperCase() : String(e.key).toUpperCase();
+    if (
+      key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && (key === 'I' || key === 'J' || key === 'C')) ||
+      (e.ctrlKey && (key === 'U' || key === 'S'))
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      _toast('Akses devtools dibatasi. Tekan Shift+F12 untuk override (jika diperlukan).');
+      return false;
+    }
+  }, { capture: true });
+
+  // 5) Wrap / override console methods to reduce casual tampering
+  (function(){
+    const noop = function(){};
+    try {
+      Object.defineProperty(window, '__console_originals', {
+        value: {
+          log: console.log.bind(console),
+          warn: console.warn.bind(console),
+          error: console.error.bind(console),
+          info: console.info.bind(console)
+        },
+        writable: false, configurable: false, enumerable: false
+      });
+
+      console.log = function(){
+        if(window.__APP_SECURE && window.__APP_SECURE.allowConsole) {
+          return window.__console_originals.log.apply(console, arguments);
+        }
+        // otherwise ignore to reduce info for casual tamperers
+      };
+      console.warn = noop;
+      console.error = noop;
+      console.info = noop;
+    } catch(e){}
+  })();
+
+  // 6) Devtools open detection (heuristic)
+  (function(){
+    let devtoolsOpen = false;
+    const threshold = 160;
+    function detect(){
+      const widthDiff = window.outerWidth - window.innerWidth;
+      const heightDiff = window.outerHeight - window.innerHeight;
+      const opened = (widthDiff > threshold) || (heightDiff > threshold);
+      if(opened && !devtoolsOpen){
+        devtoolsOpen = true;
+        showDevtoolsWarning();
+      } else if(!opened && devtoolsOpen){
+        devtoolsOpen = false;
+        removeDevtoolsWarning();
+      }
+    }
+    function showDevtoolsWarning(){
+      if(document.getElementById('__devtools_warn')) return;
+      const warn = document.createElement('div');
+      warn.id = '__devtools_warn';
+      warn.innerHTML = '<div style="font-family:Arial,Helvetica,sans-serif;padding:12px;background:#ffe9e9;color:#8b0000;border-radius:8px;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2147483646;box-shadow:0 6px 24px rgba(0,0,0,0.12)">Peringatan: Deteksi alat pengembang aktif. Aksi berbahaya dapat diblokir.</div>';
+      document.body.appendChild(warn);
+      document.body.style.filter = 'blur(1px)';
+    }
+    function removeDevtoolsWarning(){
+      const el = document.getElementById('__devtools_warn');
+      if(el) el.remove();
+      document.body.style.filter = '';
+    }
+    setInterval(detect, 800);
+    window.addEventListener('resize', detect, { passive:true });
+  })();
+
+  // 7) Freeze snapshots (adds friction; not secure by itself)
+  try {
+    if(window.products && Array.isArray(window.products)) {
+      Object.defineProperty(window, '__PRODUCTS_SNAPSHOT', {
+        value: JSON.parse(JSON.stringify(window.products || [])),
+        writable: false, configurable: false, enumerable: false
+      });
+    }
+    if(window.sales && Array.isArray(window.sales)) {
+      Object.defineProperty(window, '__SALES_SNAPSHOT', {
+        value: JSON.parse(JSON.stringify(window.sales || [])),
+        writable: false, configurable: false, enumerable: false
+      });
+    }
+  } catch(e){}
+
+  // 8) Safe wrapper for critical actions (client-side token check; server is required for real security)
+  window.__secureAction = function(actionName, payload){
+    const token = sessionStorage.getItem('session_token') || null;
+    if(!token){
+      _toast('Aksi terlindungi. Silakan login untuk melanjutkan.');
+      throw new Error('Unauthorized - missing token');
+    }
+    // return true for now (owner should implement server call)
+    return true;
+  };
+
+})();
+/* ================= END PATCH ================= */
+
 </script>
 </body>
 </html>
