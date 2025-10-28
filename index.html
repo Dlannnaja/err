@@ -1988,7 +1988,10 @@ document.addEventListener("keydown", function (e) {
 
   // Jika scanner mengirim "Enter", artinya scan selesai
   if (e.key === "Enter") {
-    const scannedCode = scannerBuffer.trim();
+    //const scannedCode = scannerBuffer.trim();
+    let scannedCode = scannerBuffer.trim();
+    // buang karakter aneh dari hasil scanner (Shift, ctrl code, dsb)
+    scannedCode = scannedCode.replace(/shift|ctrl|alt|\(|\)|[^\w\-]/gi, "");
     scannerBuffer = "";
     if (!scannedCode) return;
 
