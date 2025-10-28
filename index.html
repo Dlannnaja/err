@@ -804,12 +804,8 @@
               <div class="col">
                 <label class="muted">Kode Barang / SKU</label>
                 <div style="display:flex;gap:var(--spacing-sm)">
-                <input id="sku" placeholder="Kode Barang" type="text" required />
-                <select id="skuScanSource" class="small" style="max-width:130px">
-                <option value="camera">📷 Kamera</option>
-                <option value="scanner">🔌 Scanner</option>
-                </select>
-                <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
+                  <input id="sku" placeholder="Kode Barang" type="text" required />
+                  <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
                 </div>
               </div>
               <div class="col">
@@ -1852,6 +1848,7 @@ function printReceipt(t){
 /* ---------- SCAN (dengan handling stok 0 & not found) ---------- */
 let html5QrcodeScanner = null;
 let scanTarget = null;
+let isSkuScanMode = false;
 
 function openCamera(target) {
   // ensure scanTarget is set so handleScan can behave differently
@@ -1891,6 +1888,43 @@ function stopCamera() {
 }
 
 function closeCamera() { stopCamera(); }
+
+/* ============================================================
+   🔹 TOMBOL "TUTUP SCANNER" UNTUK MODE SCANNER FISIK
+   ============================================================ */
+function addScannerCloseButton() {
+  // kalau tombol sudah ada, jangan buat ulang
+  if (document.getElementById("closeScannerBtn")) return;
+
+  // ambil container di sekitar input SKU
+  const container = document.querySelector("#sku")?.parentElement;
+  if (!container) return;
+
+  const btn = document.createElement("button");
+  btn.id = "closeScannerBtn";
+  btn.textContent = "Tutup Scanner";
+  btn.className = "small";
+  btn.style.background = "#c0392b";
+  btn.style.color = "#fff";
+  btn.style.marginLeft = "6px";
+  btn.style.border = "none";
+  btn.style.borderRadius = "6px";
+  btn.style.cursor = "pointer";
+
+  // 🔹 Saat diklik: keluar dari mode scanner
+  btn.onclick = () => {
+    removeScannerCloseButton();
+    isSkuScanMode = false; // keluar dari mode scan SKU
+    document.activeElement.blur(); // hilangkan fokus input SKU
+    showToast("🔒 Mode scanner ditutup");
+  };
+
+  container.appendChild(btn);
+}
+
+function removeScannerCloseButton() {
+  document.getElementById("closeScannerBtn")?.remove();
+}
 
 function showCameraAlert(message){
   try{ if(html5QrcodeScanner) { html5QrcodeScanner.stop().catch(()=>{}); html5QrcodeScanner=null; } }catch(e){}
@@ -1996,24 +2030,26 @@ document.addEventListener("keydown", function (e) {
     scannerBuffer = "";
     if (!scannedCode) return;
 
-    // Cek apakah sedang di mode tambah produk (input SKU)
-    const skuInput = document.getElementById("sku");
-    if (skuInput && document.hasFocus && skuInput === document.activeElement) {
-      skuInput.value = scannedCode;
-      showToast(`📦 SKU diisi: ${scannedCode}`);
-      return;
+    // 🔹 Jika sedang mode scan SKU (tambah produk)
+    if (isSkuScanMode) {
+        const skuInput = document.getElementById("sku");
+        if (skuInput) {
+            skuInput.value = scannedCode;
+            showToast(`📦 SKU diisi: ${scannedCode}`);
+        }
+        return;
     }
 
-    // Kalau tidak, berarti sedang mode penjualan → cari produk
+    // 🔹 Kalau tidak di mode scan SKU, berarti mode penjualan
     const product = products.find(p => p.sku === scannedCode);
     if (product) {
-      addToCart(product.sku);
-      showToast(`✅ ${product.name} ditambahkan ke keranjang`);
+        addToCart(product.sku);
+        showToast(`✅ ${product.name} ditambahkan ke keranjang`);
     } else {
-      showToast(`⚠️ Produk dengan kode "${scannedCode}" tidak ditemukan`);
+        showToast(`⚠️ Produk dengan kode "${scannedCode}" tidak ditemukan`);
     }
     return;
-  }
+}
 
   // Gabungkan karakter hasil scan ke buffer (scanner cepat <300ms)
   if (scannerTimer) clearTimeout(scannerTimer);
@@ -2021,10 +2057,12 @@ document.addEventListener("keydown", function (e) {
   scannerTimer = setTimeout(() => (scannerBuffer = ""), 300);
 });
 
+
   function scanSku() {
   const mode = document.getElementById("skuScanSource")?.value || "camera";
 
   if (mode === "scanner") {
+    isSkuScanMode = true;
     // Mode scanner fisik (keyboard emulation)
     document.getElementById("sku").focus();
     showToast("🔌 Mode scanner aktif — arahkan alat ke barcode");
