@@ -1673,7 +1673,7 @@ function finalizePendingSale(){
     document.getElementById('receiptPreviewModal').style.display = 'none'
     pendingPaidInvoice = null
     localStorage.removeItem('pendingPaidInvoice')
-    renderCart(); renderFinalStock()
+    renderCart(); render(); renderFinalStock();
     return
   }
 
@@ -1687,11 +1687,14 @@ function finalizePendingSale(){
   pendingPaidInvoice = null
   localStorage.removeItem('pendingPaidInvoice')
   cart = []
-  renderCart(); renderFinalStock(); loadRestock()
+
+  // 🔥 Tambahkan render() di sini
+  renderCart(); render(); renderFinalStock(); loadRestock()
 
   document.getElementById('receiptPreviewModal').style.display = 'none'
-  showToast("Penjualan diselesaikan dan masuk ke laporan.")
+  showToast("Penjualan diselesaikan.")
 }
+
 
 /* finishSale kept for backward compat (calls finalizePendingSale) */
 function finishSale(invoice){
