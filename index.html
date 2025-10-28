@@ -804,8 +804,12 @@
               <div class="col">
                 <label class="muted">Kode Barang / SKU</label>
                 <div style="display:flex;gap:var(--spacing-sm)">
-                  <input id="sku" placeholder="Kode Barang" type="text" required />
-                  <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
+                <input id="sku" placeholder="Kode Barang" type="text" required />
+                <select id="skuScanSource" class="small" style="max-width:130px">
+                <option value="camera">📷 Kamera</option>
+                <option value="scanner">🔌 Scanner</option>
+                </select>
+                <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
                 </div>
               </div>
               <div class="col">
@@ -2018,12 +2022,43 @@ document.addEventListener("keydown", function (e) {
 });
 
   function scanSku() {
-  try {
-    openCamera("sku");
-  } catch (err) {
-    showToast("📷 Kamera tidak tersedia, gunakan alat scanner fisik.");
+  const mode = document.getElementById("skuScanSource")?.value || "camera";
+
+  if (mode === "scanner") {
+    // Mode scanner fisik (keyboard emulation)
+    document.getElementById("sku").focus();
+    showToast("🔌 Mode scanner aktif — arahkan alat ke barcode");
+    return;
   }
+
+  // Mode kamera hp/laptop
+  const modal = document.getElementById("cameraModal");
+  const readerDiv = document.getElementById("cameraReader");
+
+  if (!readerDiv) return alert("Area kamera tidak ditemukan.");
+
+  modal.style.display = "flex";
+  const html5QrCode = new Html5Qrcode("cameraReader");
+
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    (decodedText) => {
+      document.getElementById("sku").value = decodedText;
+      showToast("✅ Kode terdeteksi: " + decodedText);
+      html5QrCode.stop().then(() => {
+        modal.style.display = "none";
+      });
+    },
+    (errorMsg) => {
+      // bisa diabaikan, error scanning frame
+    }
+  ).catch(err => {
+    alert("Gagal membuka kamera: " + err);
+    modal.style.display = "none";
+  });
 }
+
 
 
 /* === GUIDE INTERAKTIF (IIFE) simplified reference (kept as before) === */
