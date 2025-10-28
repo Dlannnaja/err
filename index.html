@@ -1971,6 +1971,61 @@ function handleScan(msg) {
 function scanSku() { openCamera("sku"); }
 function startScan(target) { openCamera(target); }
 
+  /* ============================================================
+   🔹 SUPPORT ALAT SCANNER BARCODE (USB / Bluetooth / External)
+   ============================================================ */
+
+let scannerBuffer = "";
+let scannerTimer = null;
+
+// Deteksi input dari alat scanner (emulasi keyboard)
+document.addEventListener("keydown", function (e) {
+  const active = document.activeElement;
+  const activeTag = active ? active.tagName.toLowerCase() : "";
+
+  // Jika mengetik manual di input atau textarea, abaikan
+  if (activeTag === "input" || activeTag === "textarea") return;
+
+  // Jika scanner mengirim "Enter", artinya scan selesai
+  if (e.key === "Enter") {
+    const scannedCode = scannerBuffer.trim();
+    scannerBuffer = "";
+    if (!scannedCode) return;
+
+    // Cek apakah sedang di mode tambah produk (input SKU)
+    const skuInput = document.getElementById("sku");
+    if (skuInput && document.hasFocus && skuInput === document.activeElement) {
+      skuInput.value = scannedCode;
+      showToast(`📦 SKU diisi: ${scannedCode}`);
+      return;
+    }
+
+    // Kalau tidak, berarti sedang mode penjualan → cari produk
+    const product = products.find(p => p.sku === scannedCode);
+    if (product) {
+      addToCart(product.sku);
+      showToast(`✅ ${product.name} ditambahkan ke keranjang`);
+    } else {
+      showToast(`⚠️ Produk dengan kode "${scannedCode}" tidak ditemukan`);
+    }
+    return;
+  }
+
+  // Gabungkan karakter hasil scan ke buffer (scanner cepat <300ms)
+  if (scannerTimer) clearTimeout(scannerTimer);
+  scannerBuffer += e.key;
+  scannerTimer = setTimeout(() => (scannerBuffer = ""), 300);
+});
+
+  function scanSku() {
+  try {
+    openCamera("sku");
+  } catch (err) {
+    showToast("📷 Kamera tidak tersedia, gunakan alat scanner fisik.");
+  }
+}
+
+
 /* === GUIDE INTERAKTIF (IIFE) simplified reference (kept as before) === */
 (function(){
   window.guideSteps = window.guideSteps || [
