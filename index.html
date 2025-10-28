@@ -2672,7 +2672,7 @@ init()
     try {
       document.querySelectorAll('script').forEach(s=>{
         if(s.innerHTML && s.innerHTML.includes('sourceMappingURL')) {
-          s.innerHTML = s.innerHTML.replace(/\\/\\/#[\\s]*sourceMappingURL=.*$/m, '');
+          s.innerHTML = s.innerHTML.replace(/\/\/[#\s]*sourceMappingURL=.*$/m, '');
         }
       });
     } catch(e){}
