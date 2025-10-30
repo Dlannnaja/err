@@ -425,7 +425,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.65);
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 10000;
@@ -1081,7 +1081,7 @@
             </div>
             
             <div class="scan-buttons">
-              <button onclick="startScan('sell')">📷 Scan Barcode</button>
+              <button id="btnStartScan" onclick="startScan('sell')">📷 Scan Barcode</button>
               <button onclick="stopScan()" class="ghost">Stop Scan</button>
             </div>
             
