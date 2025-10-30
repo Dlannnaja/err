@@ -78,7 +78,7 @@
 
   @media (min-width: 900px) {
     .grid {
-      grid-template-columns: 1fr 320px; /* Mengurangi lebar kolom kedua */
+      grid-template-columns: 1fr 280px; /* Mengurangi lebar kolom kedua (keranjang) */
     }
   }
 
@@ -291,7 +291,7 @@
     white-space: nowrap; /* Biar nama produk tetap 1 baris */
     overflow: hidden;
     text-overflow: ellipsis;
-  }
+    }
 
     #cart td:first-child {
     width: 65%;
@@ -581,7 +581,7 @@
       --font-size-base-r: clamp(15px, 1.6vw, 16px);
       --guide-tooltip-width: 320px;
     }
-    .grid { grid-template-columns: 1fr 320px; } /* Mengurangi lebar kolom kedua */
+    .grid { grid-template-columns: 1fr 280px; } /* Mengurangi lebar kolom kedua */
     button { width: auto; min-width: 120px; }
     button.small { min-width: 88px; }
     #cameraModal, #paymentModal { align-items: center; }
@@ -596,7 +596,7 @@
       --font-size-xl-r: 20px;
       --guide-tooltip-width: 340px;
     }
-    .grid { grid-template-columns: 1fr 320px; gap: 18px; } /* Mengurangi lebar kolom kedua */
+    .grid { grid-template-columns: 1fr 280px; gap: 18px; } /* Mengurangi lebar kolom kedua */
     body { font-size: var(--font-size-base-r); }
     table { font-size: var(--font-size-base-r); min-width: 600px; }
     button { font-size: var(--font-size-base-r); padding: 10px 14px; }
@@ -611,7 +611,7 @@
       --font-size-xl-r: 22px;
       --guide-tooltip-width: 360px;
     }
-    .grid{ grid-template-columns: 1fr 320px; gap: 22px; } /* Mengurangi lebar kolom kedua */
+    .grid{ grid-template-columns: 1fr 280px; gap: 22px; } /* Mengurangi lebar kolom kedua */
     button { padding: 10px 16px; }
     #salesTbl, #restockTbl, #finalStockTbl { min-width: 700px; }
   }
@@ -729,9 +729,9 @@
   
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Sedikit lebih kecil */
     gap: var(--spacing-md);
-    max-height: 300px;
+    max-height: 400px; /* Diperbesar dari 300px */
     overflow-y: auto;
     padding: var(--spacing-sm);
     border: 1px solid #e8eef8;
@@ -790,7 +790,7 @@
   }
   
   .product-quantity {
-    width: 50px;
+    width: 45px; /* Diperkecil sedikit */
     padding: var(--spacing-xs);
     text-align: center;
   }
@@ -823,6 +823,51 @@
   .category-tab.active {
     background: var(--accent);
     color: #fff;
+  }
+
+  /* Compact cart styles */
+  .compact-cart {
+    padding: var(--spacing-md);
+  }
+  
+  .compact-cart h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    font-size: 1.1rem;
+  }
+  
+  .compact-cart #cart {
+    max-height: 150px; /* Membatasi tinggi keranjang */
+    overflow-y: auto;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .compact-cart .cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .compact-cart .cart-total {
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .compact-cart .discount-section {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .compact-cart .printer-section {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .compact-cart .checkout-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+  
+  .compact-cart .checkout-buttons button {
+    flex: 1;
   }
 
   </style>
@@ -976,22 +1021,22 @@
         </section>
       </div>
 
-      <!-- Sisi Kanan: Keranjang dan Scan Produk -->
-      <div class="card">
+      <!-- Sisi Kanan: Keranjang Kecil -->
+      <div class="card compact-cart">
         <h3>Keranjang (<span id="cartCount2">0</span>)</h3>
         <div id="cart"><i class="muted">Keranjang kosong</i></div>
-        <div class="flex" style="margin-top: var(--spacing-md); flex-direction: column; gap: var(--spacing-sm)">
-         
-        <div class="note">Total: <strong id="total">Rp 0</strong></div>
+        
+        <div class="cart-actions">
+          <div class="cart-total">Total: <strong id="total">Rp 0</strong></div>
 
-        <!-- DISCOUNT CONTROLS (side-by-side) -->
-          <div style="display:flex;gap:10px;margin-top:8px;align-items:center;">
-          <div style="flex:1;min-width:140px">
+          <!-- DISCOUNT CONTROLS -->
+          <div class="discount-section">
             <label class="muted">Diskon total belanja (%)</label>
-              <input type="number" id="discountTotalPercent" min="0" max="100" placeholder="10" oninput="applyDiscount()" />
+            <input type="number" id="discountTotalPercent" min="0" max="100" placeholder="10" oninput="applyDiscount()" />
           </div>
-          </div>
-          <div style="width: 100%">
+          
+          <!-- PRINTER SETTINGS -->
+          <div class="printer-section">
             <label><input type="checkbox" id="autoPrint" /> Cetak struk otomatis</label>
             <div class="printer-row">
               <select id="printerSelect">
@@ -1002,17 +1047,17 @@
               </select>
               <button class="small ghost" onclick="savePrinterPreference()">Simpan</button>
             </div>
-            <div class="info-small">Jika auto print aktif: pastikan pilih & simpan printer. Jika tidak, proses cetak akan diblokir dan muncul peringatan.</div>
           </div>
-          <div style="width: 100%; margin-top: var(--spacing-md)">
-            <!-- tetap pakai id checkoutBtn supaya minimal perubahan -->
+          
+          <!-- CHECKOUT BUTTONS -->
+          <div class="checkout-buttons">
             <button id="checkoutBtn" onclick="checkout()" disabled>Bayar</button>
             <button class="ghost" onclick="clearCart()">Kosongkan</button>
           </div>
         </div>
       </div>
 
-      <!-- Menu Produk Grid -->
+      <!-- Menu Produk Grid (Diperbesar) -->
       <div class="card">
         <h3>Tambah Produk ke Keranjang</h3>
         <div class="product-grid-container">
