@@ -17,12 +17,13 @@
     --radius: 10px;
     --font: "Poppins", system-ui, sans-serif;
 
-    /* Ukuran font dan spasi diperhalus */
-    --font-size-base: 13px;
-    --font-size-small: 11px;
-    --spacing-sm: 6px;
-    --spacing-md: 10px;
-    --spacing-lg: 14px;
+    /* Ukuran font dan spasi diperbesar */
+    --font-size-base: 15px;
+    --font-size-small: 13px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 18px;
+    --spacing-xl: 24px;
   }
 
   *, *::before, *::after {
@@ -36,6 +37,7 @@
     color: #111;
     overflow-x: hidden;
     font-size: var(--font-size-base);
+    min-height: 100vh;
   }
 
   header {
@@ -43,8 +45,12 @@
     color: #fff;
     padding: var(--spacing-lg) var(--spacing-md);
     box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-    /* --- Keranjang di header --- */
+  
+  /* --- Keranjang di header --- */
   header .muted {
     color: #ffffff !important;     /* ubah warna jadi putih terang */
     font-weight: 500;              /* sedikit tebal biar jelas */
@@ -63,22 +69,23 @@
 
   h2 {
     margin: var(--spacing-md) 0;
-    font-size: 1.4rem; /* dikit kecil */
+    font-size: 1.6rem; /* diperbesar */
   }
   h3 {
     margin: var(--spacing-md) 0;
-    font-size: 1.2rem;
+    font-size: 1.4rem; /* diperbesar */
   }
 
+  /* Perubahan utama: grid 2 kolom */
   .grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
 
-  @media (min-width: 900px) {
+  @media (min-width: 1024px) {
     .grid {
-      grid-template-columns: 1fr 240px 340px; /* Keranjang lebih kecil, produk lebih lebar */
+      grid-template-columns: 2fr 1fr; /* Kolom kiri lebih lebar */
     }
   }
 
@@ -99,7 +106,7 @@
 
   .col {
     flex: 1;
-    min-width: 100px; /* dikit lebih kecil supaya muat */
+    min-width: 100px;
   }
 
   input[type="text"],
@@ -161,95 +168,93 @@
     font-size: var(--font-size-small);
   }
 
-  /* ----- default table style (kept) ----- */
+  /* Table styles diperbesar */
   table {
     width: 100%;
     border-collapse: collapse;
     font-size: var(--font-size-base);
     min-width: 100%;
   }
-    /* === Laporan Penjualan === */
-#salesTbl {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  min-width: 700px;
-}
+  
+  /* === Laporan Penjualan === */
+  #salesTbl {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 700px;
+  }
 
-#salesTbl th, #salesTbl td {
-  padding: 10px;
-  border-bottom: 1px solid #f1f3f5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  #salesTbl th, #salesTbl td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f3f5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-#salesTbl th:nth-child(1), #salesTbl td:nth-child(1) { width: 6%; text-align: center; } /* No */
-#salesTbl th:nth-child(2), #salesTbl td:nth-child(2) { width: 25%; } /* Tanggal */
-#salesTbl th:nth-child(3), #salesTbl td:nth-child(3) { width: 20%; } /* Invoice */
-#salesTbl th:nth-child(4), #salesTbl td:nth-child(4) { width: 35%; } /* Item */
-#salesTbl th:nth-child(5), #salesTbl td:nth-child(5) { width: 14%; text-align: right; } /* Total */
+  #salesTbl th:nth-child(1), #salesTbl td:nth-child(1) { width: 6%; text-align: center; }
+  #salesTbl th:nth-child(2), #salesTbl td:nth-child(2) { width: 25%; }
+  #salesTbl th:nth-child(3), #salesTbl td:nth-child(3) { width: 20%; }
+  #salesTbl th:nth-child(4), #salesTbl td:nth-child(4) { width: 35%; }
+  #salesTbl th:nth-child(5), #salesTbl td:nth-child(5) { width: 14%; text-align: right; }
 
+  /* === Laporan Restock === */
+  #restockTbl {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 700px;
+  }
 
-/* === Laporan Restock === */
-#restockTbl {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  min-width: 700px;
-}
+  #restockTbl th, #restockTbl td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f3f5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-#restockTbl th, #restockTbl td {
-  padding: 10px;
-  border-bottom: 1px solid #f1f3f5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  #restockTbl th:nth-child(1), #restockTbl td:nth-child(1) { width: 6%; text-align: center; }
+  #restockTbl th:nth-child(2), #restockTbl td:nth-child(2) { width: 18%; }
+  #restockTbl th:nth-child(3), #restockTbl td:nth-child(3) { width: 15%; }
+  #restockTbl th:nth-child(4), #restockTbl td:nth-child(4) { width: 30%; }
+  #restockTbl th:nth-child(5), #restockTbl td:nth-child(5) { width: 15%; text-align: center; }
+  #restockTbl th:nth-child(6), #restockTbl td:nth-child(6) { width: 16%; text-align: right; }
 
-#restockTbl th:nth-child(1), #restockTbl td:nth-child(1) { width: 6%; text-align: center; } /* No */
-#restockTbl th:nth-child(2), #restockTbl td:nth-child(2) { width: 18%; } /* Tanggal */
-#restockTbl th:nth-child(3), #restockTbl td:nth-child(3) { width: 15%; } /* SKU */
-#restockTbl th:nth-child(4), #restockTbl td:nth-child(4) { width: 30%; } /* Nama */
-#restockTbl th:nth-child(5), #restockTbl td:nth-child(5) { width: 15%; text-align: center; } /* Jumlah */
-#restockTbl th:nth-child(6), #restockTbl td:nth-child(6) { width: 16%; text-align: right; } /* Stok Akhir */
+  /* === Laporan Stok Akhir === */
+  #finalStockTbl {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 650px;
+  }
 
+  #finalStockTbl th, #finalStockTbl td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f3f5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-/* === Laporan Stok Akhir === */
-#finalStockTbl {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  min-width: 650px;
-}
+  #finalStockTbl th:nth-child(1), #finalStockTbl td:nth-child(1) { width: 6%; text-align: center; }
+  #finalStockTbl th:nth-child(2), #finalStockTbl td:nth-child(2) { width: 18%; }
+  #finalStockTbl th:nth-child(3), #finalStockTbl td:nth-child(3) { width: 36%; }
+  #finalStockTbl th:nth-child(4), #finalStockTbl td:nth-child(4) { width: 20%; text-align: center; }
+  #finalStockTbl th:nth-child(5), #finalStockTbl td:nth-child(5) { width: 20%; text-align: right; }
 
-#finalStockTbl th, #finalStockTbl td {
-  padding: 10px;
-  border-bottom: 1px solid #f1f3f5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  /* Style seragam agar sama seperti tabel produk */
+  #salesTbl th, #restockTbl th, #finalStockTbl th {
+    background: #f9fbfd;
+    color: #333;
+    font-weight: 600;
+  }
 
-#finalStockTbl th:nth-child(1), #finalStockTbl td:nth-child(1) { width: 6%; text-align: center; } /* No */
-#finalStockTbl th:nth-child(2), #finalStockTbl td:nth-child(2) { width: 18%; } /* SKU */
-#finalStockTbl th:nth-child(3), #finalStockTbl td:nth-child(3) { width: 36%; } /* Nama */
-#finalStockTbl th:nth-child(4), #finalStockTbl td:nth-child(4) { width: 20%; text-align: center; } /* Stok */
-#finalStockTbl th:nth-child(5), #finalStockTbl td:nth-child(5) { width: 20%; text-align: right; } /* Harga */
-
-/* --- Style seragam agar sama seperti tabel produk --- */
-#salesTbl th, #restockTbl th, #finalStockTbl th {
-  background: #f9fbfd;
-  color: #333;
-  font-weight: 600;
-}
-
-#salesTbl tbody tr:nth-child(even),
-#restockTbl tbody tr:nth-child(even),
-#finalStockTbl tbody tr:nth-child(even) {
-  background: #fcfdff;
-}
-
+  #salesTbl tbody tr:nth-child(even),
+  #restockTbl tbody tr:nth-child(even),
+  #finalStockTbl tbody tr:nth-child(even) {
+    background: #fcfdff;
+  }
 
   th, td {
     padding: var(--spacing-sm);
@@ -279,50 +284,54 @@
     border-radius: var(--radius);
     overflow-x: auto;
   }
-    #cart table {
+  
+  #cart table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Biar kolom ga pecah */
+    table-layout: fixed;
     word-wrap: break-word;
   }
 
-    #cart td {
+  #cart td {
     vertical-align: middle;
-    white-space: nowrap; /* Biar nama produk tetap 1 baris */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    }
+  }
 
-    #cart td:first-child {
+  #cart td:first-child {
     width: 65%;
-    }
+  }
 
-    #cart td:nth-child(2) {
+  #cart td:nth-child(2) {
     text-align: right;
     width: 25%;
-    }
+  }
 
-    #cart td:nth-child(3) {
+  #cart td:nth-child(3) {
     text-align: center;
     width: 10%;
-    }
-    /* Rapi di semua perangkat */
-    .table-wrapper {
+  }
+  
+  /* Rapi di semua perangkat */
+  .table-wrapper {
     overflow-x: auto;
     width: 100%;
     -webkit-overflow-scrolling: touch;
   }
-    #tbl {
+  
+  #tbl {
     width: 100%;
     border-collapse: collapse;
-    table-layout: auto; /* biar kolom menyesuaikan konten */
-    min-width: 600px;   /* biar ga rusak di layar kecil */
+    table-layout: auto;
+    min-width: 600px;
   }
-    #tbl th, #tbl td {
+  
+  #tbl th, #tbl td {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    padding: 8px;
+    padding: 10px;
     border-bottom: 1px solid #f1f3f5;
     text-align: left;
     vertical-align: middle;
@@ -581,7 +590,7 @@
       --font-size-base-r: clamp(15px, 1.6vw, 16px);
       --guide-tooltip-width: 320px;
     }
-    .grid { grid-template-columns: 1fr 240px 340px; } /* Keranjang lebih kecil, produk lebih lebar */
+    .grid { grid-template-columns: 2fr 1fr; }
     button { width: auto; min-width: 120px; }
     button.small { min-width: 88px; }
     #cameraModal, #paymentModal { align-items: center; }
@@ -596,7 +605,7 @@
       --font-size-xl-r: 20px;
       --guide-tooltip-width: 340px;
     }
-    .grid { grid-template-columns: 1fr 240px 340px; gap: 18px; } /* Keranjang lebih kecil, produk lebih lebar */
+    .grid { grid-template-columns: 2fr 1fr; gap: 18px; }
     body { font-size: var(--font-size-base-r); }
     table { font-size: var(--font-size-base-r); min-width: 600px; }
     button { font-size: var(--font-size-base-r); padding: 10px 14px; }
@@ -611,7 +620,7 @@
       --font-size-xl-r: 22px;
       --guide-tooltip-width: 360px;
     }
-    .grid{ grid-template-columns: 1fr 240px 340px; gap: 22px; } /* Keranjang lebih kecil, produk lebih lebar */
+    .grid{ grid-template-columns: 2fr 1fr; gap: 22px; }
     button { padding: 10px 16px; }
     #salesTbl, #restockTbl, #finalStockTbl { min-width: 700px; }
   }
@@ -660,9 +669,9 @@
     opacity: 0.9;
     transition: all 0.25s ease;
     white-space: nowrap;
-    max-width: 90vw;           /* biar gak lebih dari 90% lebar layar */
-    overflow: hidden;          /* sembunyikan isi kalau kepanjangan */
-    text-overflow: ellipsis;   /* tambahkan "..." jika terlalu panjang */
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   #startGuideBtn:hover {
     opacity: 1;
@@ -678,7 +687,7 @@
       left: 12px;
       border-radius: 30px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-      max-width: 88vw; /* tambah ruang aman di kanan */
+      max-width: 88vw;
     }
   }
   
@@ -716,8 +725,8 @@
   
   .product-search input {
     padding-left: 30px;
-    font-size: 14px; /* Diperbesar */
-    padding: 10px; /* Diperbesar */
+    font-size: 16px;
+    padding: 12px;
   }
   
   .product-search::before {
@@ -727,14 +736,14 @@
     top: 50%;
     transform: translateY(-50%);
     color: var(--muted);
-    font-size: 16px; /* Diperbesar */
+    font-size: 18px;
   }
   
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Diperbesar dari 140px */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: var(--spacing-md);
-    max-height: 450px; /* Diperbesar dari 400px */
+    max-height: 500px;
     overflow-y: auto;
     padding: var(--spacing-sm);
     border: 1px solid #e8eef8;
@@ -764,7 +773,7 @@
   .product-name {
     font-weight: 600;
     margin-bottom: var(--spacing-sm);
-    font-size: 14px; /* Diperbesar */
+    font-size: 16px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -774,12 +783,12 @@
     color: var(--accent);
     font-weight: 600;
     margin-bottom: var(--spacing-sm);
-    font-size: 14px; /* Diperbesar */
+    font-size: 16px;
   }
   
   .product-stock {
     color: var(--muted);
-    font-size: 12px; /* Diperbesar */
+    font-size: 14px;
     margin-bottom: var(--spacing-md);
   }
   
@@ -794,16 +803,16 @@
   }
   
   .product-quantity {
-    width: 50px; /* Diperbesar dari 45px */
-    padding: 6px; /* Diperbesar */
+    width: 60px;
+    padding: 8px;
     text-align: center;
-    font-size: 14px; /* Diperbesar */
+    font-size: 16px;
   }
   
   .product-add-btn {
     flex: 1;
-    padding: 6px; /* Diperbesar */
-    font-size: 12px; /* Diperbesar */
+    padding: 8px;
+    font-size: 14px;
     font-weight: 600;
   }
   
@@ -816,12 +825,12 @@
   }
   
   .category-tab {
-    padding: 10px 14px; /* Diperbesar */
+    padding: 12px 16px;
     background: #f1f5f9;
     border: none;
     border-radius: var(--radius);
     font-weight: 600;
-    font-size: 14px; /* Diperbesar */
+    font-size: 16px;
     cursor: pointer;
     white-space: nowrap;
   }
@@ -839,11 +848,11 @@
   .compact-cart h3 {
     margin-top: 0;
     margin-bottom: var(--spacing-md);
-    font-size: 1rem; /* Diperkecil */
+    font-size: 1.2rem;
   }
   
   .compact-cart #cart {
-    max-height: 120px; /* Diperkecil dari 150px */
+    max-height: 200px;
     overflow-y: auto;
     margin-bottom: var(--spacing-md);
   }
@@ -857,7 +866,7 @@
   .compact-cart .cart-total {
     font-weight: 600;
     margin-bottom: var(--spacing-sm);
-    font-size: 13px; /* Diperkecil */
+    font-size: 15px;
   }
   
   .compact-cart .discount-section {
@@ -865,8 +874,8 @@
   }
   
   .compact-cart .discount-section input {
-    padding: 6px; /* Diperkecil */
-    font-size: 12px; /* Diperkecil */
+    padding: 8px;
+    font-size: 14px;
   }
   
   .compact-cart .printer-section {
@@ -874,8 +883,8 @@
   }
   
   .compact-cart .printer-section select {
-    padding: 6px; /* Diperkecil */
-    font-size: 12px; /* Diperkecil */
+    padding: 8px;
+    font-size: 14px;
   }
   
   .compact-cart .checkout-buttons {
@@ -885,8 +894,8 @@
   
   .compact-cart .checkout-buttons button {
     flex: 1;
-    padding: 8px; /* Diperkecil */
-    font-size: 12px; /* Diperkecil */
+    padding: 10px;
+    font-size: 14px;
   }
 
   /* Scan buttons diperbesar */
@@ -897,8 +906,8 @@
   }
   
   .scan-buttons button {
-    padding: 12px 16px; /* Diperbesar */
-    font-size: 14px; /* Diperbesar */
+    padding: 14px 18px;
+    font-size: 16px;
     font-weight: 600;
   }
 
@@ -910,7 +919,7 @@
 <body>
   <header>
     <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--spacing-md);flex-wrap:wrap">
-      <h2 style="margin:0;font-size:1.25rem">INDOCART</h2>
+      <h2 style="margin:0;font-size:1.5rem">INDOCART</h2>
       <div style="display:flex;gap:var(--spacing-md);align-items:center">
         <div class="muted">Keranjang: <span id="cartCount">0</span> barang</div>
         <div class="badge" id="shopStatus">Offline</div>
@@ -921,139 +930,167 @@
   <main class="container">
     <div class="grid">
 
-      <!-- Dashboard Laporan -->
-      <div class="card">
-        <h2 style="font-size:1.5rem; margin-bottom: var(--spacing-md)">📊 Dashboard Laporan</h2>
-        <div class="tabs">
-          <button class="tab-btn active" onclick="openTab('penjualan')">Penjualan</button>
-          <button class="tab-btn" onclick="openTab('restock')">Restock</button>
-          <button class="tab-btn" onclick="openTab('stok')">Stok Akhir</button>
+      <!-- Kolom Kiri: Dashboard Laporan, Tambah/Edit Produk, dan Menu Produk Grid -->
+      <div>
+        <!-- Dashboard Laporan -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <h2 style="font-size:1.6rem; margin-bottom: var(--spacing-md)">📊 Dashboard Laporan</h2>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('penjualan')">Penjualan</button>
+            <button class="tab-btn" onclick="openTab('restock')">Restock</button>
+            <button class="tab-btn" onclick="openTab('stok')">Stok Akhir</button>
+          </div>
+
+          <div id="penjualan" class="tab-content active">
+            <h3>Laporan Penjualan</h3>
+            <div class="flex">
+              <label class="muted">From <input id="filterFrom" type="date" /></label>
+              <label class="muted">To <input id="filterTo" type="date" /></label>
+              <button onclick="loadSales()" class="small">Tampilkan</button>
+              <button onclick="exportSales()" class="small ghost">Export CSV</button>
+              <button onclick="printSales()" class="small ghost">Cetak</button>
+              <button onclick="clearSales()" class="small ghost" title="Hapus laporan hari ini">Clear Laporan</button>
+              <button onclick="clearSalesByRange()" class="small ghost" title="Hapus laporan berdasarkan rentang tanggal">Clear Range</button>
+            </div>
+
+            <div class="table-wrapper" style="max-height:250px; margin-top: var(--spacing-sm)">
+              <table id="salesTbl">
+                <thead><tr><th>No</th><th>Tanggal</th><th>Invoice</th><th>Item</th><th>Total</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="restock" class="tab-content">
+            <h3>Laporan Restock (Barang Masuk)</h3>
+            <div class="flex" style="gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+              <label class="muted">Dari <input id="filterRestockFrom" type="date" /></label>
+              <label class="muted">Sampai <input id="filterRestockTo" type="date" /></label>
+              <button onclick="loadRestock()" class="small">Tampilkan</button>
+              <button onclick="exportRestock()" class="small ghost">Export CSV Semua</button>
+              <button onclick="printRestock()" class="small ghost">Cetak</button>
+              <button onclick="clearRestocks()" class="small ghost">Clear Restock</button>
+            </div>
+
+            <div class="flex" style="gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+              <label class="muted">Bulan: <input id="restockMonth" type="month" /></label>
+              <button class="small ghost" onclick="exportRestockByMonth()">Download Bulanan</button>
+
+              <label class="muted">Dari <input id="restockExportFrom" type="date" /></label>
+              <label class="muted">Sampai <input id="restockExportTo" type="date" /></label>
+              <button class="small ghost" onclick="exportRestockByRange()">Download Rentang</button>
+            </div>
+
+            <div class="table-wrapper" style="max-height:250px; margin-top: var(--spacing-sm)">
+              <table id="restockTbl">
+                <thead><tr><th>No</th><th>Tanggal</th><th>SKU</th><th>Nama</th><th>Jumlah</th><th>Stok Akhir</th></tr></thead>
+                <tbody id="restockTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="stok" class="tab-content">
+            <h3>Stok Akhir Produk</h3>
+
+            <div class="table-wrapper" style="max-height:250px; margin-top: var(--spacing-sm)">
+              <table id="finalStockTbl">
+                <thead><tr><th>No</th><th>SKU</th><th>Nama</th><th>Stok</th><th>Harga</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <div id="penjualan" class="tab-content active">
-          <h3>Laporan Penjualan</h3>
-          <div class="flex">
-            <label class="muted">From <input id="filterFrom" type="date" /></label>
-            <label class="muted">To <input id="filterTo" type="date" /></label>
-            <button onclick="loadSales()" class="small">Tampilkan</button>
-            <button onclick="exportSales()" class="small ghost">Export CSV</button>
-            <button onclick="printSales()" class="small ghost">Cetak</button>
-            <button onclick="clearSales()" class="small ghost" title="Hapus laporan hari ini">Clear Laporan</button>
-            <button onclick="clearSalesByRange()" class="small ghost" title="Hapus laporan berdasarkan rentang tanggal">Clear Range</button>
-          </div>
-
-          <!-- table-wrapper ditambahkan di sini -->
-          <div class="table-wrapper" style="max-height:200px; margin-top: var(--spacing-sm)">
-            <table id="salesTbl">
-              <thead><tr><th>No</th><th>Tanggal</th><th>Invoice</th><th>Item</th><th>Total</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div id="restock" class="tab-content">
-          <h3>Laporan Restock (Barang Masuk)</h3>
-          <div class="flex" style="gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
-            <label class="muted">Dari <input id="filterRestockFrom" type="date" /></label>
-            <label class="muted">Sampai <input id="filterRestockTo" type="date" /></label>
-            <button onclick="loadRestock()" class="small">Tampilkan</button>
-            <button onclick="exportRestock()" class="small ghost">Export CSV Semua</button>
-            <button onclick="printRestock()" class="small ghost">Cetak</button>
-            <button onclick="clearRestocks()" class="small ghost">Clear Restock</button>
-          </div>
-
-          <!-- export per bulan / range -->
-          <div class="flex" style="gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
-            <label class="muted">Bulan: <input id="restockMonth" type="month" /></label>
-            <button class="small ghost" onclick="exportRestockByMonth()">Download Bulanan</button>
-
-            <label class="muted">Dari <input id="restockExportFrom" type="date" /></label>
-            <label class="muted">Sampai <input id="restockExportTo" type="date" /></label>
-            <button class="small ghost" onclick="exportRestockByRange()">Download Rentang</button>
-          </div>
-
-          <!-- table-wrapper ditambahkan di sini -->
-          <div class="table-wrapper" style="max-height:240px; margin-top: var(--spacing-sm)">
-            <table id="restockTbl">
-              <thead><tr><th>No</th><th>Tanggal</th><th>SKU</th><th>Nama</th><th>Jumlah</th><th>Stok Akhir</th></tr></thead>
-              <tbody id="restockTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div id="stok" class="tab-content">
-          <h3>Stok Akhir Produk</h3>
-
-          <!-- table-wrapper ditambahkan di sini -->
-          <div class="table-wrapper" style="max-height:200px; margin-top: var(--spacing-sm)">
-            <table id="finalStockTbl">
-              <thead><tr><th>No</th><th>SKU</th><th>Nama</th><th>Stok</th><th>Harga</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tambah / Edit Produk -->
-      <div class="card">
-        <section>
-          <h3>Tambah Produk</h3>
-          <form id="formProduct" onsubmit="submitProduct();return false" style="margin-bottom: var(--spacing-lg)">
-            <div class="row">
-              <div class="col">
-                <label class="muted">Kode Barang / SKU</label>
-                <div style="display:flex;gap:var(--spacing-sm)">
-                  <input id="sku" placeholder="Kode Barang" type="text" required />
-                  <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
+        <!-- Tambah / Edit Produk -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <section>
+            <h3>Tambah Produk</h3>
+            <form id="formProduct" onsubmit="submitProduct();return false" style="margin-bottom: var(--spacing-lg)">
+              <div class="row">
+                <div class="col">
+                  <label class="muted">Kode Barang / SKU</label>
+                  <div style="display:flex;gap:var(--spacing-sm)">
+                    <input id="sku" placeholder="Kode Barang" type="text" required />
+                    <button type="button" class="small" onclick="scanSku()" title="Scan Kode Barang">Scan</button>
+                  </div>
+                </div>
+                <div class="col">
+                  <label class="muted">Nama Produk</label>
+                  <input id="name" placeholder="Nama Produk" type="text" required />
                 </div>
               </div>
-              <div class="col">
-                <label class="muted">Nama Produk</label>
-                <input id="name" placeholder="Nama Produk" type="text" required />
+              <div class="row">
+                <div class="col">
+                  <label class="muted">Harga Jual (Rp)</label>
+                  <input id="price" placeholder="Harga Jual (Rp)" type="number" required />
+                </div>
+                <div class="col">
+                  <label class="muted">Stok (angka)</label>
+                  <input id="qty" placeholder="Stok (angka)" type="number" required />
+                </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <label class="muted">Harga Jual (Rp)</label>
-                <input id="price" placeholder="Harga Jual (Rp)" type="number" required />
+              <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;align-items:center">
+                <button type="submit" id="formSubmitBtn">Tambah</button>
+                <button type="button" class="ghost" onclick="resetForm()">Reset</button>
+                <div class="muted" style="margin-left: auto; font-size: var(--font-size-small)">
+                  Jika nama sudah ada, stok akan <strong>dijumlahkan</strong>.
+                </div>
               </div>
-              <div class="col">
-                <label class="muted">Stok (angka)</label>
-                <input id="qty" placeholder="Stok (angka)" type="number" required />
-              </div>
-            </div>
-            <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;align-items:center">
-              <button type="submit" id="formSubmitBtn">Tambah</button>
-              <button type="button" class="ghost" onclick="resetForm()">Reset</button>
-              <div class="muted" style="margin-left: auto; font-size: var(--font-size-small)">
-                Jika nama sudah ada, stok akan <strong>dijumlahkan</strong>.
-              </div>
-            </div>
-          </form>
+            </form>
 
-          <h3>Restock Produk</h3>
-          <form id="formRestock" onsubmit="return restockProduct(event)" class="flex" style="gap:var(--spacing-sm); flex-wrap:wrap; align-items:center">
-            <select id="restockName" required>
-              <option value="">Pilih Produk...</option>
-            </select>
-            <input id="restockQty" placeholder="Jumlah Restock" type="number" required />
-            <button type="submit">Tambah Stok</button>
-          </form>
+            <h3>Restock Produk</h3>
+            <form id="formRestock" onsubmit="return restockProduct(event)" class="flex" style="gap:var(--spacing-sm); flex-wrap:wrap; align-items:center">
+              <select id="restockName" required>
+                <option value="">Pilih Produk...</option>
+              </select>
+              <input id="restockQty" placeholder="Jumlah Restock" type="number" required />
+              <button type="submit">Tambah Stok</button>
+            </form>
 
-          <h3>Daftar Produk</h3>
-          <input id="search" placeholder="Cari produk (Kode/Nama)..." oninput="render()" autocomplete="off"
-                 style="margin-bottom: var(--spacing-lg); width: 100%; padding: var(--spacing-sm);
-                        border-radius: var(--radius); border:1px solid #e8eef8" />
-          <div class="table-wrapper" style="max-height: 300px;">
-            <table id="tbl">
-              <thead><tr><th>SKU</th><th>Nama</th><th>Stok</th><th>Harga</th><th>Aksi</th></tr></thead>
-              <tbody></tbody>
-            </table>
+            <h3>Daftar Produk</h3>
+            <input id="search" placeholder="Cari produk (Kode/Nama)..." oninput="render()" autocomplete="off"
+                   style="margin-bottom: var(--spacing-lg); width: 100%; padding: var(--spacing-sm);
+                          border-radius: var(--radius); border:1px solid #e8eef8" />
+            <div class="table-wrapper" style="max-height: 400px;">
+              <table id="tbl">
+                <thead><tr><th>SKU</th><th>Nama</th><th>Stok</th><th>Harga</th><th>Aksi</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- Menu Produk Grid -->
+        <div class="card">
+          <h3>Tambah Produk ke Keranjang</h3>
+          <div class="product-grid-container">
+            <div class="category-tabs">
+              <button class="category-tab active" onclick="filterByCategory('all')">Semua</button>
+              <button class="category-tab" onclick="filterByCategory('makanan')">Makanan</button>
+              <button class="category-tab" onclick="filterByCategory('minuman')">Minuman</button>
+              <button class="category-tab" onclick="filterByCategory('snack')">Snack</button>
+              <button class="category-tab" onclick="filterByCategory('lainnya')">Lainnya</button>
+            </div>
+            
+            <div class="product-search">
+              <input type="text" id="productSearchInput" placeholder="Cari produk..." oninput="filterProducts()">
+            </div>
+            
+            <div class="product-grid" id="productGrid">
+              <!-- Produk akan dimuat di sini dengan JavaScript -->
+            </div>
+            
+            <div class="scan-buttons">
+              <button onclick="startScan('sell')">📷 Scan Barcode</button>
+              <button onclick="stopScan()" class="ghost">Stop Scan</button>
+            </div>
+            
+            <div class="muted note" style="margin-top: var(--spacing-md)">Pilih produk dari grid atau scan barcode untuk menambahkan ke keranjang.</div>
           </div>
-        </section>
+        </div>
       </div>
 
-      <!-- Sisi Kanan: Keranjang Kecil -->
+      <!-- Kolom Kanan: Keranjang -->
       <div class="card compact-cart">
         <h3>Keranjang (<span id="cartCount2">0</span>)</h3>
         <div id="cart"><i class="muted">Keranjang kosong</i></div>
@@ -1086,35 +1123,6 @@
             <button id="checkoutBtn" onclick="checkout()" disabled>Bayar</button>
             <button class="ghost" onclick="clearCart()">Kosongkan</button>
           </div>
-        </div>
-      </div>
-
-      <!-- Menu Produk Grid (Diperbesar) -->
-      <div class="card">
-        <h3>Tambah Produk ke Keranjang</h3>
-        <div class="product-grid-container">
-          <div class="category-tabs">
-            <button class="category-tab active" onclick="filterByCategory('all')">Semua</button>
-            <button class="category-tab" onclick="filterByCategory('makanan')">Makanan</button>
-            <button class="category-tab" onclick="filterByCategory('minuman')">Minuman</button>
-            <button class="category-tab" onclick="filterByCategory('snack')">Snack</button>
-            <button class="category-tab" onclick="filterByCategory('lainnya')">Lainnya</button>
-          </div>
-          
-          <div class="product-search">
-            <input type="text" id="productSearchInput" placeholder="Cari produk..." oninput="filterProducts()">
-          </div>
-          
-          <div class="product-grid" id="productGrid">
-            <!-- Produk akan dimuat di sini dengan JavaScript -->
-          </div>
-          
-          <div class="scan-buttons">
-            <button onclick="startScan('sell')">📷 Scan Barcode</button>
-            <button onclick="stopScan()" class="ghost">Stop Scan</button>
-          </div>
-          
-          <div class="muted note" style="margin-top: var(--spacing-md)">Pilih produk dari grid atau scan barcode untuk menambahkan ke keranjang.</div>
         </div>
       </div>
 
@@ -1154,18 +1162,8 @@
     </div>
   </div>
 </div>
-<!-- Guide popup lama di-nonaktifkan -->
-<!--
-  <div id="guideOverlay">
-    <div id="guideBox">
-      <h3>Selamat Datang di POS Toko Sembako</h3>
-      <p>Klik mulai untuk tutorial singkat semua fitur, atau skip jika sudah hafal.</p>
-      <button onclick="startGuide()">Mulai</button>
-      <button onclick="skipGuide()">Skip</button>
-    </div>
-  </div>
-  -->
-  <!-- Tombol Floating "Mulai Panduan" -->
+
+<!-- Tombol Floating "Mulai Panduan" -->
 <button id="startGuideBtn" onclick="startGuide()" title="Mulai Panduan"
   style="
     position: fixed;
@@ -1187,51 +1185,50 @@
   onmouseout="this.style.opacity=0.9"
 >📘 Mulai Panduan</button>
 
+<!-- payment modal -->
+<div id="paymentModal">
+  <div class="box">
+    <h3 style="margin-top:0">Pembayaran</h3>
+    <div id="pmTop" style="margin-bottom:8px" class="muted">Pilih metode pembayaran untuk menyelesaikan transaksi.</div>
 
-  <!-- payment modal -->
-  <div id="paymentModal">
-    <div class="box">
-      <h3 style="margin-top:0">Pembayaran</h3>
-      <div id="pmTop" style="margin-bottom:8px" class="muted">Pilih metode pembayaran untuk menyelesaikan transaksi.</div>
+    <div id="paymentMethods">
+      <div class="pm-btn" data-method="cash" onclick="selectPaymentMethod('cash', this)">Tunai</div>
+      <div class="pm-btn" data-method="transfer" onclick="selectPaymentMethod('transfer', this)">Transfer Bank</div>
+      <div class="pm-btn" data-method="card" onclick="selectPaymentMethod('card', this)">Kartu (EDC)</div>
+      <div class="pm-btn" data-method="qris" onclick="selectPaymentMethod('qris', this)">QRIS / e-Wallet</div>
+    </div>
 
-      <div id="paymentMethods">
-        <div class="pm-btn" data-method="cash" onclick="selectPaymentMethod('cash', this)">Tunai</div>
-        <div class="pm-btn" data-method="transfer" onclick="selectPaymentMethod('transfer', this)">Transfer Bank</div>
-        <div class="pm-btn" data-method="card" onclick="selectPaymentMethod('card', this)">Kartu (EDC)</div>
-        <div class="pm-btn" data-method="qris" onclick="selectPaymentMethod('qris', this)">QRIS / e-Wallet</div>
-      </div>
+    <div id="paymentInfoBox" class="pay-instr">Total: <strong id="payTotal">Rp 0</strong></div>
 
-      <div id="paymentInfoBox" class="pay-instr">Total: <strong id="payTotal">Rp 0</strong></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="confirmPayment()" id="confirmPayBtn">Konfirmasi Pembayaran</button>
+      <button class="ghost" onclick="closePaymentModal()">Batal</button>
+    </div>
 
-      <div style="display:flex;gap:8px">
-        <button onclick="confirmPayment()" id="confirmPayBtn">Konfirmasi Pembayaran</button>
-        <button class="ghost" onclick="closePaymentModal()">Batal</button>
-      </div>
+    <div id="payDebug" style="margin-top:10px" class="muted"></div>
+  </div>
+</div>
 
-      <div id="payDebug" style="margin-top:10px" class="muted"></div>
+<!-- receipt preview modal (shown after confirmPayment) -->
+<div id="receiptPreviewModal">
+  <div class="box">
+    <h3 style="margin:0 0 8px 0">Struk Pembayaran</h3>
+    <div id="receiptPreviewContent" class="items"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button onclick="printPendingReceipt()" id="printPreviewBtn">Cetak</button>
+      <button class="ghost" onclick="closeReceiptPreview()">Tutup</button>
+      <button onclick="finalizePendingSale()" id="finalizeBtn" style="background:#0b8b3e">Selesaikan Penjualan</button>
     </div>
   </div>
+</div>
 
-  <!-- receipt preview modal (shown after confirmPayment) -->
-  <div id="receiptPreviewModal">
-    <div class="box">
-      <h3 style="margin:0 0 8px 0">Struk Pembayaran</h3>
-      <div id="receiptPreviewContent" class="items"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button onclick="printPendingReceipt()" id="printPreviewBtn">Cetak</button>
-        <button class="ghost" onclick="closeReceiptPreview()">Tutup</button>
-        <button onclick="finalizePendingSale()" id="finalizeBtn" style="background:#0b8b3e">Selesaikan Penjualan</button>
-      </div>
-    </div>
-  </div>
+<!-- receipt area template (hidden) -->
+<div id="receiptTemplate" style="display:none">
+  <div id="receiptArea"></div>
+</div>
 
-  <!-- receipt area template (hidden) -->
-  <div id="receiptTemplate" style="display:none">
-    <div id="receiptArea"></div>
-  </div>
-
-  <!-- toast -->
-  <div id="appToast" style="display:none"></div>
+<!-- toast -->
+<div id="appToast" style="display:none"></div>
 
 <script>
 /* ---------- data ---------- */
@@ -1340,11 +1337,9 @@ function showToast(msg) {
   }, 2500);
 }
 
-  function showSalesAlert(message) {
-  // Kita gunakan showToast yang sudah ada agar notifikasinya konsisten
+function showSalesAlert(message) {
   showToast(message);
 }
-
 
 /* ---------- render product list (dengan notif jika kosong) ---------- */
 function render(){
@@ -1622,7 +1617,8 @@ function addToCart(sku, qty = 1){
   }
   renderCart();
 }
-  function updateItemDiscount(sku, discountValue) {
+
+function updateItemDiscount(sku, discountValue) {
   const item = cart.find(c => c.sku === sku);
   if (item) {
     // Pastikan nilai diskon tidak negatif
@@ -1631,6 +1627,7 @@ function addToCart(sku, qty = 1){
     renderCart(); // Render ulang keranjang untuk memperbarui total
   }
 }
+
 function renderCart(){
   const el = document.getElementById("cart");
   const count = document.getElementById("cartCount");
@@ -1741,7 +1738,7 @@ function loadRestock(showNotification = true) {
   // Ambil nilai dari filter
   const from = document.getElementById("filterRestockFrom").value;
   const to = document.getElementById("filterRestockTo").value;
-  const month = document.getElementById("restockMonth").value; // Filter bulan tetap bisa dipakai
+  const month = document.getElementById("restockMonth").value;
 
   // 1. Validasi: Cek apakah ada filter yang dipilih
   if (!from && !to && !month) {
@@ -1760,7 +1757,6 @@ function loadRestock(showNotification = true) {
   let filteredRestocks = allRestocks;
 
   if (from || to) {
-    // Jika 'Dari' tidak diisi, gunakan tanggal sangat awal. Jika 'Sampai' tidak diisi, gunakan tanggal sangat akhir.
     const startDate = from ? new Date(from) : new Date('1970-01-01');
     const endDate = to ? new Date(to) : new Date('2999-12-31');
     endDate.setHours(23, 59, 59, 999);
@@ -1802,7 +1798,7 @@ function loadRestock(showNotification = true) {
   }
 }
   
-  /* ======== TOMBOL TAMPILKAN ======== */
+/* ======== TOMBOL TAMPILKAN ======== */
 function exportRestock() {
   const restocks = JSON.parse(localStorage.getItem("restocks")) || [];
   if (!restocks.length) {
@@ -1824,7 +1820,8 @@ function exportRestock() {
   URL.revokeObjectURL(url);
   showRestockAlert("✅ File CSV restock berhasil diunduh.");
 }
-  function exportRestockCSV() {
+
+function exportRestockCSV() {
   const restocks = JSON.parse(localStorage.getItem("restocks")) || [];
   if (!restocks.length) {
     showRestockAlert("⚠️ Belum ada data restock untuk diekspor.");
@@ -1846,7 +1843,7 @@ function exportRestock() {
   showRestockAlert("✅ File CSV restock berhasil diunduh.");
 }
 
-  /* ======== EXPORT RESTOCK BULANAN ======== */
+/* ======== EXPORT RESTOCK BULANAN ======== */
 function exportRestockByMonth() {
   const monthInput = document.getElementById("restockMonth");
   if (!monthInput || !monthInput.value) {
@@ -1854,10 +1851,10 @@ function exportRestockByMonth() {
     return;
   }
 
-  const selectedMonth = monthInput.value; // contoh: "2025-10"
+  const selectedMonth = monthInput.value;
   const restocks = JSON.parse(localStorage.getItem("restocks")) || [];
 
-  // Filter berdasarkan bulan (format tanggal di restocks pakai getLocalDateTime)
+  // Filter berdasarkan bulan
   const filtered = restocks.filter(r => r.date && r.date.startsWith(selectedMonth));
 
   if (!filtered.length) {
@@ -1972,6 +1969,7 @@ function exportRestockByRange() {
 
   showRestockAlert("✅ File CSV berdasarkan rentang tanggal berhasil diunduh.");
 }
+
 /* ---------- PAYMENT FLOW (updated per request) ---------- */
 
 /* open payment modal */
@@ -2122,7 +2120,7 @@ function openReceiptPreview(invoice){
 /* close receipt preview */
 function closeReceiptPreview(){
   document.getElementById('receiptPreviewModal').style.display = 'none'
-  showToast("✅ Proses penjualan selesai. Struk telah dicatat di laporan.") // <--- TAMBAHKAN INI
+  showToast("✅ Proses penjualan selesai. Struk telah dicatat di laporan.")
 }
 
 /* print pending receipt (does NOT finalize sale) */
@@ -2171,7 +2169,6 @@ function finalizePendingSale(){
   document.getElementById('receiptPreviewModal').style.display = 'none'
   showToast("Penjualan diselesaikan.")
 }
-
 
 /* finishSale kept for backward compat (calls finalizePendingSale) */
 function finishSale(invoice){
@@ -2244,7 +2241,7 @@ function printReceipt(t){
   }
 }
 
-  function printSales() {
+function printSales() {
   const table = document.getElementById("salesTbl");
   if (!table) {
     showSalesAlert("⚠️ Tabel laporan penjualan tidak ditemukan.");
@@ -2278,11 +2275,11 @@ function printReceipt(t){
   printWindow.focus();
   printWindow.print();
 }
-  function clearSales() {
 
+function clearSales() {
   if (sales.length === 0) {
     showSalesAlert("Tidak ada data yang dapat dihapus, silahkan lakukan penjualan.");
-    return; // Hentikan fungsi di sini jika tidak ada data
+    return;
   }
     
   // konfirmasi sebelum hapus
@@ -2301,7 +2298,8 @@ function printReceipt(t){
   // tampilkan notifikasi sukses
   showSalesAlert("🗑️ Semua data laporan penjualan berhasil dihapus.");
 }
-  function clearSalesByRange() {
+
+function clearSalesByRange() {
   const fromEl = document.getElementById("filterFrom");
   const toEl = document.getElementById("filterTo");
 
@@ -2464,7 +2462,7 @@ function handleScan(msg) {
 function scanSku() { openCamera("sku"); }
 function startScan(target) { openCamera(target); }
 
-  /* ============================================================
+/* ============================================================
    🔹 SUPPORT ALAT SCANNER BARCODE (USB / Bluetooth / External)
    ============================================================ */
 
@@ -2481,7 +2479,6 @@ document.addEventListener("keydown", function (e) {
 
   // Jika scanner mengirim "Enter", artinya scan selesai
   if (e.key === "Enter") {
-    //const scannedCode = scannerBuffer.trim();
     let scannedCode = scannerBuffer.trim();
     // buang karakter aneh dari hasil scanner (Shift, ctrl code, dsb)
     scannedCode = scannedCode.replace(/shift|ctrl|alt|\(|\)|[^\w\-]/gi, "");
@@ -2513,14 +2510,13 @@ document.addEventListener("keydown", function (e) {
   scannerTimer = setTimeout(() => (scannerBuffer = ""), 300);
 });
 
-  function scanSku() {
+function scanSku() {
   try {
     openCamera("sku");
   } catch (err) {
     showToast("📷 Kamera tidak tersedia, gunakan alat scanner fisik.");
   }
 }
-
 
 /* === GUIDE INTERAKTIF (IIFE) simplified reference (kept as before) === */
 (function(){
@@ -2858,7 +2854,7 @@ function loadSales(showNotification = true) {
   const from = document.getElementById("filterFrom").value;
   const to = document.getElementById("filterTo").value;
   const tbl = document.querySelector("#salesTbl tbody");
-  if (!tbl) return; // Cegah error jika elemen tidak ditemukan
+  if (!tbl) return;
 
   tbl.innerHTML = "";
 
@@ -2876,7 +2872,7 @@ function loadSales(showNotification = true) {
   let foundData = false;
 
   // 2. Filter data berdasarkan input
-  let filteredSales = sales.filter(s => s.finalized); // Ambil hanya penjualan yang sudah selesai
+  let filteredSales = sales.filter(s => s.finalized);
 
   if (from || to) {
     const startDate = from ? new Date(from) : new Date('1970-01-01');
@@ -2958,7 +2954,7 @@ function renderFinalStock(){
 }
 
 /* ---------- INIT ---------- */
-  function openTab(id){
+function openTab(id){
   // remove active state
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
@@ -2975,6 +2971,7 @@ function renderFinalStock(){
   const content = document.getElementById(id);
   if(content) content.classList.add("active");
 }
+
 function init(){
   const autoPrintEl = document.getElementById('autoPrint')
   if(autoPrintEl) autoPrintEl.checked = false
@@ -3017,7 +3014,6 @@ function init(){
 }
 
 init();
-  
 
 /* ======= CLIENT STRONG-HARDENING ======= */
 (function(){
@@ -3220,7 +3216,6 @@ init();
 
 })();
 /* ===== END STRONG-HARDENING ===== */
-
 
 </script>
 </body>
