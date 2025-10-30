@@ -78,7 +78,7 @@
 
   @media (min-width: 900px) {
     .grid {
-      grid-template-columns: 1fr 280px; /* Mengurangi lebar kolom kedua (keranjang) */
+      grid-template-columns: 1fr 240px 340px; /* Keranjang lebih kecil, produk lebih lebar */
     }
   }
 
@@ -581,7 +581,7 @@
       --font-size-base-r: clamp(15px, 1.6vw, 16px);
       --guide-tooltip-width: 320px;
     }
-    .grid { grid-template-columns: 1fr 280px; } /* Mengurangi lebar kolom kedua */
+    .grid { grid-template-columns: 1fr 240px 340px; } /* Keranjang lebih kecil, produk lebih lebar */
     button { width: auto; min-width: 120px; }
     button.small { min-width: 88px; }
     #cameraModal, #paymentModal { align-items: center; }
@@ -596,7 +596,7 @@
       --font-size-xl-r: 20px;
       --guide-tooltip-width: 340px;
     }
-    .grid { grid-template-columns: 1fr 280px; gap: 18px; } /* Mengurangi lebar kolom kedua */
+    .grid { grid-template-columns: 1fr 240px 340px; gap: 18px; } /* Keranjang lebih kecil, produk lebih lebar */
     body { font-size: var(--font-size-base-r); }
     table { font-size: var(--font-size-base-r); min-width: 600px; }
     button { font-size: var(--font-size-base-r); padding: 10px 14px; }
@@ -611,7 +611,7 @@
       --font-size-xl-r: 22px;
       --guide-tooltip-width: 360px;
     }
-    .grid{ grid-template-columns: 1fr 280px; gap: 22px; } /* Mengurangi lebar kolom kedua */
+    .grid{ grid-template-columns: 1fr 240px 340px; gap: 22px; } /* Keranjang lebih kecil, produk lebih lebar */
     button { padding: 10px 16px; }
     #salesTbl, #restockTbl, #finalStockTbl { min-width: 700px; }
   }
@@ -704,7 +704,7 @@
     }
   }
 
-  /* Product Grid Styles */
+  /* Product Grid Styles - Diperbesar */
   .product-grid-container {
     margin-top: var(--spacing-md);
   }
@@ -716,6 +716,8 @@
   
   .product-search input {
     padding-left: 30px;
+    font-size: 14px; /* Diperbesar */
+    padding: 10px; /* Diperbesar */
   }
   
   .product-search::before {
@@ -725,13 +727,14 @@
     top: 50%;
     transform: translateY(-50%);
     color: var(--muted);
+    font-size: 16px; /* Diperbesar */
   }
   
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Sedikit lebih kecil */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Diperbesar dari 140px */
     gap: var(--spacing-md);
-    max-height: 400px; /* Diperbesar dari 300px */
+    max-height: 450px; /* Diperbesar dari 400px */
     overflow-y: auto;
     padding: var(--spacing-sm);
     border: 1px solid #e8eef8;
@@ -761,7 +764,7 @@
   .product-name {
     font-weight: 600;
     margin-bottom: var(--spacing-sm);
-    font-size: var(--font-size-base);
+    font-size: 14px; /* Diperbesar */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -771,11 +774,12 @@
     color: var(--accent);
     font-weight: 600;
     margin-bottom: var(--spacing-sm);
+    font-size: 14px; /* Diperbesar */
   }
   
   .product-stock {
     color: var(--muted);
-    font-size: var(--font-size-small);
+    font-size: 12px; /* Diperbesar */
     margin-bottom: var(--spacing-md);
   }
   
@@ -790,15 +794,17 @@
   }
   
   .product-quantity {
-    width: 45px; /* Diperkecil sedikit */
-    padding: var(--spacing-xs);
+    width: 50px; /* Diperbesar dari 45px */
+    padding: 6px; /* Diperbesar */
     text-align: center;
+    font-size: 14px; /* Diperbesar */
   }
   
   .product-add-btn {
     flex: 1;
-    padding: var(--spacing-xs);
-    font-size: var(--font-size-small);
+    padding: 6px; /* Diperbesar */
+    font-size: 12px; /* Diperbesar */
+    font-weight: 600;
   }
   
   .category-tabs {
@@ -810,12 +816,12 @@
   }
   
   .category-tab {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 10px 14px; /* Diperbesar */
     background: #f1f5f9;
     border: none;
     border-radius: var(--radius);
     font-weight: 600;
-    font-size: var(--font-size-small);
+    font-size: 14px; /* Diperbesar */
     cursor: pointer;
     white-space: nowrap;
   }
@@ -825,7 +831,7 @@
     color: #fff;
   }
 
-  /* Compact cart styles */
+  /* Compact cart styles - Lebih Kecil */
   .compact-cart {
     padding: var(--spacing-md);
   }
@@ -833,11 +839,11 @@
   .compact-cart h3 {
     margin-top: 0;
     margin-bottom: var(--spacing-md);
-    font-size: 1.1rem;
+    font-size: 1rem; /* Diperkecil */
   }
   
   .compact-cart #cart {
-    max-height: 150px; /* Membatasi tinggi keranjang */
+    max-height: 120px; /* Diperkecil dari 150px */
     overflow-y: auto;
     margin-bottom: var(--spacing-md);
   }
@@ -851,14 +857,25 @@
   .compact-cart .cart-total {
     font-weight: 600;
     margin-bottom: var(--spacing-sm);
+    font-size: 13px; /* Diperkecil */
   }
   
   .compact-cart .discount-section {
     margin-bottom: var(--spacing-sm);
   }
   
+  .compact-cart .discount-section input {
+    padding: 6px; /* Diperkecil */
+    font-size: 12px; /* Diperkecil */
+  }
+  
   .compact-cart .printer-section {
     margin-bottom: var(--spacing-sm);
+  }
+  
+  .compact-cart .printer-section select {
+    padding: 6px; /* Diperkecil */
+    font-size: 12px; /* Diperkecil */
   }
   
   .compact-cart .checkout-buttons {
@@ -868,6 +885,21 @@
   
   .compact-cart .checkout-buttons button {
     flex: 1;
+    padding: 8px; /* Diperkecil */
+    font-size: 12px; /* Diperkecil */
+  }
+
+  /* Scan buttons diperbesar */
+  .scan-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+  }
+  
+  .scan-buttons button {
+    padding: 12px 16px; /* Diperbesar */
+    font-size: 14px; /* Diperbesar */
+    font-weight: 600;
   }
 
   </style>
@@ -1077,12 +1109,12 @@
             <!-- Produk akan dimuat di sini dengan JavaScript -->
           </div>
           
-          <div class="flex" style="gap:var(--spacing-sm); margin-top: var(--spacing-md)">
-            <button onclick="startScan('sell')" class="small">Scan Barcode</button>
-            <button onclick="stopScan()" class="small ghost">Stop Scan</button>
+          <div class="scan-buttons">
+            <button onclick="startScan('sell')">📷 Scan Barcode</button>
+            <button onclick="stopScan()" class="ghost">Stop Scan</button>
           </div>
           
-          <div class="muted note" style="margin-top: var(--spacing-sm)">Pilih produk dari grid atau scan barcode untuk menambahkan ke keranjang.</div>
+          <div class="muted note" style="margin-top: var(--spacing-md)">Pilih produk dari grid atau scan barcode untuk menambahkan ke keranjang.</div>
         </div>
       </div>
 
